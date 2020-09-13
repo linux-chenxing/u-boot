@@ -1,9 +1,21 @@
 menu "MStar/SigmaStar v7 options"
 	depends on ARCH_MSTARV7
 
+config MSTAR_IPL
+	bool "u-boot is being loaded by the vendor IPL"
+	help
+	  Say y here if you are loading u-boot via the vendor
+	  IPL. Note that the image can only be 48KB or less
+	  for the IPL to load it so this only really applies
+	  to a SPL/TPL.
+
 endmenu
 
 if ARCH_MSTARV7
+
+config SPL_TEXT_BASE
+	default 0x23c00000 if MSTAR_IPL
+	default 0xa0000000
 
 config DEBUG_UART_BASE
 	default 0x1f221000
