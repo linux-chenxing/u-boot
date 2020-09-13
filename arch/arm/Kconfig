@@ -1171,6 +1171,12 @@ config ARCH_ZYNQMP
 	imply MP
 	imply DM_USB_GADGET
 
+config ARCH_MSTARV7
+	bool "MStar/SigmaStar ARM v7 SoCs"
+	select CPU_V7A
+	select SYS_NS16550
+	imply SUPPORT_SPL
+
 config ARCH_TEGRA
 	bool "NVIDIA Tegra"
 	imply DISTRO_DEFAULTS
@@ -1960,6 +1966,8 @@ source "arch/arm/mach-zynqmp/Kconfig"
 source "arch/arm/mach-versal/Kconfig"
 
 source "arch/arm/mach-zynqmp-r5/Kconfig"
+
+source "arch/arm/mach-mstar/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
 

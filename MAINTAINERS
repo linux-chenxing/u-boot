@@ -306,6 +306,11 @@ F:	drivers/cpu/at91_cpu.c
 F:	drivers/misc/microchip_flexcom.c
 F:	drivers/timer/mchp-pit64b-timer.c
 
+ARM MSTAR/SIGMASTAR V7
+M:	Daniel Palmer <daniel@thingy.jp>
+S:	Maintained
+F:	arch/arm/mach-mstar/
+
 ARM NEXELL S5P4418
 M:	Stefan Bosch <stefan_b@posteo.net>
 S:	Maintained
