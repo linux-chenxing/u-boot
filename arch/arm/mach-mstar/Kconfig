@@ -34,6 +34,9 @@ config SPL_TEXT_BASE
 	default 0x23c00000 if MSTAR_IPL
 	default 0xa0000000
 
+config SPL_LDSCRIPT
+	default "arch/arm/mach-mstar/u-boot-spl.lds"
+
 config SYS_TEXT_BASE
 	default	0x20000000
 
