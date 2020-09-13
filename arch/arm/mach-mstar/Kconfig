@@ -9,6 +9,15 @@ config MSTAR_IPL
 	  for the IPL to load it so this only really applies
 	  to a SPL/TPL.
 
+config MSTAR_INFINITY1
+	bool "infinity1 family"
+
+config MSTAR_INFINITY3
+	bool "infinity3 family"
+
+config MSTAR_MERCURY5
+	bool "mercury5 family"
+
 endmenu
 
 if ARCH_MSTARV7
