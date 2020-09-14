@@ -1179,6 +1179,20 @@ config ARCH_MSTARV7
 	select DM
 	select DM_SERIAL
 	select SYS_NS16550
+	select SPL
+	select SPL_SEPARATE_BSS
+	select SPL_OF_CONTROL
+	select SPL_DM
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_SERIAL_SUPPORT
+	select FIT
+	select OF_LIBFDT
+	select OF_CONTROL
+	select OF_LIBFDT_OVERLAY
+	select OF_BOARD_SETUP
+	select BOARD_LATE_INIT
+	select DTB_RESELECT
 	imply SUPPORT_SPL
 
 config ARCH_TEGRA
