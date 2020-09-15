@@ -3,4 +3,7 @@
 
 obj-y	+= init.o \
 	   cpu.o \
-	   board.o
+	   board.o \
+	   mstar.o \
+	   cache.o
+
