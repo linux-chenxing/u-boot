@@ -27,3 +27,7 @@
 
 	/* this is a checksum, doesn't always need to be right */
 	.long	0x0000
+
+_start:
+	ARM_VECTORS
+
