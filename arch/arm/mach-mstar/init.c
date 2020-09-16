@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (c) 2020 Daniel Palmer<daniel@thingy.jp>
+ */
+
 void s_init(void)
 {
 	/* fix up the aux control register, we need smp mode on to use the caches*/
@@ -8,3 +13,7 @@ void s_init(void)
 		::: "r0");
 }
 
+int dram_init(void) {
+	gd->ram_size = 0x4000000;
+	return 0;
+}
