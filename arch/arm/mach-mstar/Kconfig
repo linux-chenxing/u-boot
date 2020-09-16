@@ -34,6 +34,9 @@ config SPL_TEXT_BASE
 	default 0x23c00000 if MSTAR_IPL
 	default 0xa0000000
 
+config SYS_TEXT_BASE
+	default	0x20000000
+
 config DEBUG_UART_BASE
 	default 0x1f221000
 
