@@ -2,4 +2,5 @@
 #
 
 obj-y	+= init.o \
-	   cpu.o
+	   cpu.o \
+	   board.o
