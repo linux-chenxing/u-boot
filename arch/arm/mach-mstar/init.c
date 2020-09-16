@@ -3,6 +3,11 @@
  * Copyright (c) 2020 Daniel Palmer<daniel@thingy.jp>
  */
 
+#include <init.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
 void s_init(void)
 {
 	/* fix up the aux control register, we need smp mode on to use the caches*/
