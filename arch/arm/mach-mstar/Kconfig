@@ -40,7 +40,8 @@ config SYS_TEXT_BASE
 config SYS_MALLOC_LEN
 	default 0x40000
 
-#CONFIG_SYS_MALLOC_F_LEN=0x3000
+config SYS_MALLOC_F_LEN
+        default 0x4000
 
 config DEBUG_UART_BASE
 	default 0x1f221000
