@@ -7,6 +7,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <chenxingv7.h>
+#include <linux/err.h>
 #include <dt-bindings/clock/mstar.h>
 
 #define REG_TEST	0x0
@@ -120,8 +121,8 @@ static int mstar_mpll_probe(struct udevice *dev)
 		goto out;
 
 	priv->pmsleep = syscon_regmap_lookup_by_phandle(dev, "mstar,pmsleep");
-	if(!priv->pmsleep){
-		ret = -ENODEV;
+	if(IS_ERR(priv->pmsleep)){
+		ret = PTR_ERR(priv->pmsleep);
 		goto out;
 	}
 
