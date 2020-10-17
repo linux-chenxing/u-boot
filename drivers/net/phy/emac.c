@@ -103,27 +103,3 @@ void emacphypowerup_msc313(void){
 	//set CLKsource to hv
 	MHal_EMAC_WritReg8(REG_BANK_ALBANY1, 0xC7, 0x80);
 }
-
-void emac_patches(void){
-	printf("emac patches\n");
-
-	// this is "switch rx descriptor format to mode 1"
-	*(int8_t *)0x1f2a2274 = 0x0;
-	*(int8_t *)0x1f2a2275 = 0x1;
-
-	// RX shift patch
-	*(int8_t *)0x1f2a2200 = *(int8_t *)0x1f2a2200 | 0x10;
-
-	// TX underrun patch
-	*(int8_t *)0x1f2a2271 = *(int8_t *)0x1f2a2271 | 0x1;
-
-	// clkgen setup
-	*(int8_t *)0x1f207108 = 0x0;
-	*(int8_t *)0x1f226688 = 0x0; // rx
-	*(int8_t *)0x1f22668c = 0x0; // tx
-
-	*(u16*)(0x1f2a2000 + 0x200) = 0xF051; // mstar call this julian100, magic number, seems to be related to the phy
-	*(u16*)(0x1f2a2000 + 0x204) = 0x0000;
-	*(u16*)(0x1f2a2000 + 0x208) = 0x0001; // mstar call this julian104, this enables software descriptors apparently
-	*(u16*)(0x1f2a2000 + 0x20c) = 0x0000;
-}

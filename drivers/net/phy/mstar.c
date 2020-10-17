@@ -14,82 +14,45 @@
 #include <linux/err.h>
 
 #include "emac.h"
+#include "msc313.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define MSC313_PHY_MASK 0xffffffff
 
-/* Bank 0 */
-#define BANK0		0x0
-/* Bank 1 */
-#define BANK1		0x200
-#define REG_ANARST	(BANK1 + 0x8)
-#define REG_ADCCLKSEL	(BANK1 + 0x74)
-#define REG_REF		(BANK1 + 0x174)
-#define REG_ADCPL	(BANK1 + 0x198)
-#define REG_LDO		(BANK1 + 0x1f8)
-/* Bank 2 */
-#define BANK2		0x400
-#define REG_200GAT	(BANK2 + 0x60)
-#define REG_TX1		(BANK2 + 0x74)
-#define REG_CLKOADCSEL	(BANK2 + 0x114)
-#define REG_SADC	(BANK2 + 0x140)
-#define REG_100GAT	(BANK2 + 0x188)
-#define REG_TX2		(BANK2 + 0x1e0)
-
-static const struct reg_field anarst = REG_FIELD(REG_ANARST, 5, 5);
-static const struct reg_field sadcpd = REG_FIELD(REG_SADC, 12, 13);
-static const struct reg_field adcplpd = REG_FIELD(REG_ADCPL, 4, 4);
-static const struct reg_field refpd = REG_FIELD(REG_REF, 14, 15);
-static const struct reg_field txpd1 = REG_FIELD(REG_TX1, 0, 7);
-static const struct reg_field txpd2 = REG_FIELD(REG_TX2, 8, 15);
-static const struct reg_field clkoadcsel = REG_FIELD(REG_CLKOADCSEL, 0, 7);
-static const struct reg_field adcclksel = REG_FIELD(REG_ADCCLKSEL, 8, 8);
-static const struct reg_field hundredgat = REG_FIELD(REG_100GAT, 14, 14);
-static const struct reg_field twohundredgat = REG_FIELD(REG_200GAT, 4, 4);
-
 struct mstar_phy_priv {
 	struct regmap *phyana;
-	struct regmap_field *anarst;
-	struct regmap_field *sadcpd;
-	struct regmap_field *adcplpd;
-	struct regmap_field *refpd;
-	struct regmap_field *txpd1;
-	struct regmap_field *txpd2;
-	struct regmap_field *clkoadcsel;
-	struct regmap_field *adcclksel;
-	struct regmap_field *hundredgat;
-	struct regmap_field *twohundredgat;
+	struct msc313e_fields msc313e_fields;
 };
 
 static void msc313e_powerup(struct mstar_phy_priv *priv){
 	printf("Doing phy power up\n");
 
-	regmap_field_write(priv->anarst, 1);
+	regmap_field_write(priv->msc313e_fields.anarst, 1);
 	mdelay(100);
-	regmap_field_write(priv->anarst, 0);
+	regmap_field_write(priv->msc313e_fields.anarst, 0);
 	mdelay(100);
 
 	/* "Power-on LDO" */
 	regmap_write(priv->phyana, REG_LDO, 0x0000);
 	/* "Power-on SADC" */
-	regmap_field_write(priv->sadcpd, 0);
+	regmap_field_write(priv->msc313e_fields.sadcpd, 0);
         /* "Power-on ADCPL" */
-	regmap_field_write(priv->adcplpd, 0);
+	regmap_field_write(priv->msc313e_fields.adcplpd, 0);
         /* "Power-on REF" */
-	regmap_field_write(priv->refpd, 0);
+	regmap_field_write(priv->msc313e_fields.refpd, 0);
         /* "Power-on TX" */
-	regmap_field_write(priv->txpd1, 0);
+	regmap_field_write(priv->msc313e_fields.txpd1, 0);
         /* "Power-on TX" */
-	regmap_field_write(priv->txpd2, 0);
+	regmap_field_write(priv->msc313e_fields.txpd2, 0);
         /* "CLKO_ADC_SEL" */
-	regmap_field_write(priv->clkoadcsel, 1);
+	regmap_field_write(priv->msc313e_fields.clkoadcsel, 1);
 	/* "reg_adc_clk_select" */
-	regmap_field_write(priv->adcclksel, 1);
+	regmap_field_write(priv->msc313e_fields.adcclksel, 1);
 	/* "100gat" */
-	regmap_field_write(priv->hundredgat, 0);
+	regmap_field_write(priv->msc313e_fields.hundredgat, 0);
 	/* "200gat" */
-	regmap_field_write(priv->twohundredgat, 0);
+	regmap_field_write(priv->msc313e_fields.twohundredgat, 0);
 }
 
 static int mstar_phy_config(struct phy_device *phydev)
@@ -130,29 +93,23 @@ static int mstar_phy_config(struct phy_device *phydev)
 		goto out;
 	}
 
-	printf("%x(%x) \n", priv->phyana->ranges[0].start, priv->phyana->ranges[0].size);
-
-	priv->anarst = regmap_field_alloc(priv->phyana, anarst);
-	priv->sadcpd = regmap_field_alloc(priv->phyana, sadcpd);
-	priv->adcplpd = regmap_field_alloc(priv->phyana, adcplpd);
-	priv->refpd = regmap_field_alloc(priv->phyana, refpd);
-	priv->txpd1 = regmap_field_alloc(priv->phyana, txpd1);
-	priv->txpd2 = regmap_field_alloc(priv->phyana, txpd2);
-	priv->clkoadcsel = regmap_field_alloc(priv->phyana, clkoadcsel);
-	priv->adcclksel = regmap_field_alloc(priv->phyana, adcclksel);
-	priv->hundredgat = regmap_field_alloc(priv->phyana, hundredgat);
-	priv->twohundredgat = regmap_field_alloc(priv->phyana, twohundredgat);
+	priv->msc313e_fields.anarst = regmap_field_alloc(priv->phyana, anarst);
+	priv->msc313e_fields.sadcpd = regmap_field_alloc(priv->phyana, sadcpd);
+	priv->msc313e_fields.adcplpd = regmap_field_alloc(priv->phyana, adcplpd);
+	priv->msc313e_fields.refpd = regmap_field_alloc(priv->phyana, refpd);
+	priv->msc313e_fields.txpd1 = regmap_field_alloc(priv->phyana, txpd1);
+	priv->msc313e_fields.txpd2 = regmap_field_alloc(priv->phyana, txpd2);
+	priv->msc313e_fields.clkoadcsel = regmap_field_alloc(priv->phyana, clkoadcsel);
+	priv->msc313e_fields.adcclksel = regmap_field_alloc(priv->phyana, adcclksel);
+	priv->msc313e_fields.hundredgat = regmap_field_alloc(priv->phyana, hundredgat);
+	priv->msc313e_fields.twohundredgat = regmap_field_alloc(priv->phyana, twohundredgat);
 
 	switch(mstar_chiptype()){
 		case CHIPTYPE_MSC313:
-			//emacclocks();
-			emac_patches();
 			emacphypowerup_msc313();
 			break;
 		case CHIPTYPE_MSC313E:
 		case CHIPTYPE_MSC313DC:
-			//emacclocks();
-			emac_patches();
 			msc313e_powerup(priv);
 			break;
 		default:
@@ -169,7 +126,7 @@ out:
 static struct phy_driver msc313_phy_driver = {
 	.uid		= MSC313_PHY_ID,
 	.mask		= 0xffffffff,
-	.name		= "MStar/SigmaStar PHY",
+	.name		= "MStar/SigmaStar MSC313 ethernet PHY",
 	.features	= PHY_BASIC_FEATURES,
 	.config		= mstar_phy_config,
 	.startup	= genphy_startup,
@@ -179,7 +136,7 @@ static struct phy_driver msc313_phy_driver = {
 static struct phy_driver msc313e_phy_driver = {
 	.uid		= MSC313E_PHY_ID,
 	.mask		= 0xffffffff,
-	.name		= "MStar/SigmaStar PHY",
+	.name		= "MStar/SigmaStar MSC313e ethernet PHY",
 	.features	= PHY_BASIC_FEATURES,
 	.config		= mstar_phy_config,
 	.startup	= genphy_startup,
