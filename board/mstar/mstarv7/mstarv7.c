@@ -49,7 +49,6 @@
 
 
 DECLARE_GLOBAL_DATA_PTR;
->>>>>>> 6ef9959b03... left overs
 
 #ifdef CONFIG_SPL_BUILD
 
