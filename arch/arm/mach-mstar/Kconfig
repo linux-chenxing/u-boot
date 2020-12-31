@@ -12,6 +12,9 @@ config MSTAR_IPL
 config MSTAR_INFINITY1
 	bool "infinity1 family"
 
+config MSTAR_INFINITY2M
+	bool "infinity2m family"
+
 config MSTAR_INFINITY3
 	bool "infinity3 family"
 

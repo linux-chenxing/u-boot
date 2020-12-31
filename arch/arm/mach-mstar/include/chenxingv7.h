@@ -18,6 +18,7 @@
 #define ENV_VAR_MSTAR_FAMILY	"mstar_family"
 #define COMPAT_I1		"infinity"
 #define COMPAT_I1_MSC313	"infinity-msc313"
+#define COMPAT_I2M		"infinity2m"
 #define COMPAT_I3		"infinity3"
 #define COMPAT_I3_MSC313E	"infinity3-msc313e"
 #define COMPAT_I6		"infinity6"
@@ -82,7 +83,7 @@ static inline void mstar_delay(unsigned long msec)
 #define CHIPID_SSC8336N			0xee
 #define CHIPID_SSC328			0xed
 #define CHIPID_SSC325			0xef
-#define CHIPID_SSD202			0xf0
+#define CHIPID_SSD20XD			0xf0
 #define CHIPID_SSC337DE			0xf2
 
 #define PMSLEEP				0x1f001c00
