@@ -50,6 +50,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+u32 mpllregs[5];
+uint mplldbg;
+
 #ifdef CONFIG_SPL_BUILD
 
 static void m5_misc(void)
@@ -134,6 +137,10 @@ static void poweron_reason(void)
 
 void board_init_f(ulong dummy)
 {
+	uint32_t cpuid;
+	int chiptype = mstar_chiptype();
+	void* reg;
+
 #ifdef CONFIG_DEBUG_UART
 	debug_uart_init();
 #endif
@@ -161,6 +168,11 @@ void board_init_f(ulong dummy)
 #endif
 
 	mstar_bump_cpufreq();
+
+	printf("mplldbg %x\n", mplldbg);
+	for(int i = 0; i < 5; i++){
+		printf("mpll: %x - %x\n", i * 4, mpllregs[i]);
+	}
 
 	//mstar_utmi_setfinetuning();
 	//mstar_clockfixup();

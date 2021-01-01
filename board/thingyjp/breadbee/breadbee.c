@@ -15,7 +15,6 @@
 #include "utmi.h"
 #include "chenxingv7.h"
 
-
 /* check that some required config options are selected */
 
 #ifndef CONFIG_BOARD_LATE_INIT
@@ -42,6 +41,9 @@
 
 
 DECLARE_GLOBAL_DATA_PTR;
+
+u32 mpllregs[5];
+uint mplldbg;
 
 #ifdef CONFIG_SPL_BUILD
 static void m5_misc(void)

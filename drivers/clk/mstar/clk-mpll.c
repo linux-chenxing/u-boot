@@ -16,12 +16,11 @@
 #define REG_CONFIG2	0xc
 #define REG_STATUS	0x10
 
-struct reg_field power_mpll_pd = REG_FIELD(REG_POWER, 0, 0);
 struct reg_field config1_loop_div_first = REG_FIELD(REG_CONFIG1, 8, 9);
 struct reg_field config1_input_div_first = REG_FIELD(REG_CONFIG1, 4, 5);
 struct reg_field config2_output_div_first = REG_FIELD(REG_CONFIG2, 12, 13);
 struct reg_field config2_loop_div_second = REG_FIELD(REG_CONFIG2, 0, 7);
-struct reg_field status_mpll_lock = REG_FIELD(REG_CONFIG2, 12, 12);
+struct reg_field status_mpll_lock = REG_FIELD(REG_STATUS, 12, 12);
 
 static const unsigned dividers[] = {
 		1, 2, 4, 8
@@ -49,6 +48,7 @@ struct mstar_mpll_priv {
 	struct regmap_field *output_div;
 	struct regmap_field *loop_div_first;
 	struct regmap_field *loop_div_second;
+	struct regmap_field *plllock;
 };
 
 static ulong mstar_mpll_get_rate(struct clk *clk)
@@ -58,29 +58,62 @@ static ulong mstar_mpll_get_rate(struct clk *clk)
 	ulong parent_rate = clk_get_rate(&priv->clk);
 	ulong output_rate;
 
+	printf("mpll get rate woot xx\n");
+
+#if 0
 	regmap_field_read(priv->input_div, &input_div);
+	printf("mpll get rate 1\n");
 	regmap_field_read(priv->output_div, &output_div);
+	printf("mpll get rate 2\n");
 	regmap_field_read(priv->loop_div_first, &loop_first);
+	printf("mpll get rate 3\n");
 	regmap_field_read(priv->loop_div_second, &loop_second);
 
+	printf("mpll get rate 4\n");
 	output_rate = parent_rate / dividers[input_div];
+	printf("mpll get rate 5\n");
 	output_rate *= loop_first * loop_second;
+	printf("mpll get rate 6\n");
 	output_rate /= output_div;
+	printf("mpll get rate 7\n");
+#endif
+	output_rate = 864000000;
+	output_rate = (output_rate / output_dividers[clk->id]) * 100;
 
-	return (output_rate / output_dividers[clk->id]) * 100;
+	printf("mpll here %u\n", (unsigned) output_rate);
+
+	return output_rate;
 }
+
+extern uint mplldbg;
+extern uint mpllregs[];
 
 static int mstar_mpll_enable(struct clk *clk)
 {
 	struct mstar_mpll_priv *priv = dev_get_priv(clk->dev);
 	uint power;
+	uint lock;
+
+	printf("mpll here xx!\n");
+
+	mplldbg = 0x2;
 
 	regmap_read(priv->regmap, REG_POWER, &power);
-/*	if(power == 0){
+	if(power == 0){
 		printf("mpll is already running\n");
 		goto out;
 	}
-*/
+
+	volatile u32 *mpllreg = 0x1f206000;
+	int reg = 2;
+	*(mpllreg + reg) = 0x0;
+	mpllregs[0] = *(mpllreg + reg);
+	*(mpllreg + reg) = 0xffff;
+	mpllregs[1] = *(mpllreg + reg);
+	*(mpllreg + reg) = 0x0100;
+	mpllregs[2] = *(mpllreg + reg);
+
+
 
 	// this might be power control for the pll?
 	regmap_write(priv->pmsleep, PMSLEEP_F4, 0);
@@ -93,6 +126,7 @@ static int mstar_mpll_enable(struct clk *clk)
 	mdelay(10);
 
 out:
+
 	return 0;
 }
 
@@ -107,10 +141,15 @@ const struct clk_ops mstar_mpll_ops = {
 	.disable = mstar_mpll_disable,
 };
 
+uint mpll_registers[5] = { 0 };
+uint mpll_dbg = 0;
+
 static int mstar_mpll_probe(struct udevice *dev)
 {
 	struct mstar_mpll_priv *priv = dev_get_priv(dev);
 	int ret;
+
+	printf("mpll here!\n");
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if(ret)
@@ -130,6 +169,9 @@ static int mstar_mpll_probe(struct udevice *dev)
 	priv->output_div = regmap_field_alloc(priv->regmap, config2_output_div_first);
 	priv->loop_div_first = regmap_field_alloc(priv->regmap, config1_loop_div_first);
 	priv->loop_div_second = regmap_field_alloc(priv->regmap, config2_loop_div_second);
+	priv->plllock = regmap_field_alloc(priv->regmap, status_mpll_lock);
+
+	printf("mpll here xxxx!\n");
 
 out:
 	return ret;

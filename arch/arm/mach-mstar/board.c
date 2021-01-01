@@ -59,6 +59,13 @@ int board_fit_config_name_match(const char *name)
 				return 0;
 			break;
 #endif
+#ifdef CONFIG_MSTAR_INFINITY2M
+		case CHIPTYIPE_SSD20XD:
+			if(!strcmp(name, COMPAT_I2M_SSD20XD)){
+				return 0;
+			}
+			break;
+#endif
 #ifdef CONFIG_MSTAR_INFINITY3
 		case CHIPTYPE_MSC313E:
 			if(!strcmp(name, COMPAT_I3_MSC313E)){
