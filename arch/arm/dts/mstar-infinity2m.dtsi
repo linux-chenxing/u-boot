@@ -4,8 +4,6 @@
  * Author: Daniel Palmer <daniel@0x0f.com>
  */
 
-/dts-v1/;
-
 #include "infinity.dtsi"
 
 &phy {

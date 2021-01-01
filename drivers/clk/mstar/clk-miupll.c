@@ -77,7 +77,7 @@ static int mstar_miupll_probe(struct udevice *dev)
 			priv->magicnumbers.pll_magic_10 = 0x0010;
 		break;
 		default:
-			dev_err(dev, "Don't know miu pll config\n");
+			//dev_err(dev, "Don't know miu pll config\n");
 			ret = -EINVAL;
 			goto out;
 	}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 thingy.jp.
+ * Copyright (c) 2020 thingy.jp.
  * Author: Daniel Palmer <daniel@0x0f.com>
  */
 
@@ -9,9 +9,13 @@
 #include "mstar-infinity2m-ssd20xd.dtsi"
 
 / {
-        compatible = "mstar,infinity2m-ssd20xd", "mstar,infinity2m", "mstar,mstar-v7";
+        compatible = "mstar,infinity2m-ssd202d", "mstar,infinity2m-ssd20xd", "mstar,infinity2m", "mstar,mstar-v7";
 };
 
 &phy {
 	compatible = "ethernet-phy-idDEAD.B33F";
+};
+
+&spi_flash {
+	compatible = "spi-nand";
 };

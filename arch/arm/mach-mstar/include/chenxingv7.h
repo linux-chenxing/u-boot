@@ -19,6 +19,7 @@
 #define COMPAT_I1		"infinity"
 #define COMPAT_I1_MSC313	"infinity-msc313"
 #define COMPAT_I2M		"infinity2m"
+#define COMPAT_I2M_SSD202D	"infinity2m-ssd202d"
 #define COMPAT_I3		"infinity3"
 #define COMPAT_I3_MSC313E	"infinity3-msc313e"
 #define COMPAT_I6		"infinity6"
@@ -76,6 +77,7 @@ static inline void mstar_delay(unsigned long msec)
 #define CHIPTYPE_SSC8336		4
 #define CHIPTYPE_SSC8336N		5
 #define CHIPTYPE_SSC325			6
+#define CHIPTYPE_SSD202D		7
 
 #define CHIPID_MSC313			0xae
 #define CHIPID_MSC313ED			0xc2 // this is the same for E and D
@@ -154,6 +156,8 @@ static inline int mstar_chiptype(void){
 			return CHIPTYPE_SSC8336;
 		case CHIPID_SSC8336N:
 			return CHIPTYPE_SSC8336N;
+		case CHIPID_SSD20XD:
+			return CHIPTYPE_SSD202D;
 		default:
 			return CHIPTYPE_UNKNOWN;
 	}

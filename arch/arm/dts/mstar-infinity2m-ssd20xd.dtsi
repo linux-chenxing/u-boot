@@ -4,6 +4,4 @@
  * Author: Daniel Palmer <daniel@0x0f.com>
  */
 
-/dts-v1/;
-
 #include "mstar-infinity2m.dtsi"

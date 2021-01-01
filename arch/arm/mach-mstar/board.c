@@ -35,11 +35,11 @@ void board_boot_order(u32 *spl_boot_list)
 	}
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
-	spl_boot_list[index++] = BOOT_DEVICE_MMC1;
+//	spl_boot_list[index++] = BOOT_DEVICE_MMC1;
 #endif
 
 #ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
-	spl_boot_list[index++] = BOOT_DEVICE_SPI;
+//	spl_boot_list[index++] = BOOT_DEVICE_SPI;
 #endif
 
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
@@ -60,8 +60,8 @@ int board_fit_config_name_match(const char *name)
 			break;
 #endif
 #ifdef CONFIG_MSTAR_INFINITY2M
-		case CHIPTYIPE_SSD20XD:
-			if(!strcmp(name, COMPAT_I2M_SSD20XD)){
+		case CHIPTYPE_SSD202D:
+			if(!strcmp(name, COMPAT_I2M_SSD202D)){
 				return 0;
 			}
 			break;

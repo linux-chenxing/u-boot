@@ -58,29 +58,16 @@ static ulong mstar_mpll_get_rate(struct clk *clk)
 	ulong parent_rate = clk_get_rate(&priv->clk);
 	ulong output_rate;
 
-	printf("mpll get rate woot xx\n");
-
-#if 0
 	regmap_field_read(priv->input_div, &input_div);
-	printf("mpll get rate 1\n");
 	regmap_field_read(priv->output_div, &output_div);
-	printf("mpll get rate 2\n");
 	regmap_field_read(priv->loop_div_first, &loop_first);
-	printf("mpll get rate 3\n");
 	regmap_field_read(priv->loop_div_second, &loop_second);
 
-	printf("mpll get rate 4\n");
 	output_rate = parent_rate / dividers[input_div];
-	printf("mpll get rate 5\n");
 	output_rate *= loop_first * loop_second;
-	printf("mpll get rate 6\n");
 	output_rate /= output_div;
-	printf("mpll get rate 7\n");
-#endif
-	output_rate = 864000000;
-	output_rate = (output_rate / output_dividers[clk->id]) * 100;
 
-	printf("mpll here %u\n", (unsigned) output_rate);
+	output_rate = (output_rate / output_dividers[clk->id]) * 100;
 
 	return output_rate;
 }
@@ -93,8 +80,6 @@ static int mstar_mpll_enable(struct clk *clk)
 	struct mstar_mpll_priv *priv = dev_get_priv(clk->dev);
 	uint power;
 	uint lock;
-
-	printf("mpll here xx!\n");
 
 	mplldbg = 0x2;
 
