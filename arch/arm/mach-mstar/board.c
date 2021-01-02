@@ -35,11 +35,11 @@ void board_boot_order(u32 *spl_boot_list)
 	}
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
-//	spl_boot_list[index++] = BOOT_DEVICE_MMC1;
+	spl_boot_list[index++] = BOOT_DEVICE_MMC1;
 #endif
 
 #ifdef CONFIG_SPL_SPI_FLASH_SUPPORT
-//	spl_boot_list[index++] = BOOT_DEVICE_SPI;
+	spl_boot_list[index++] = BOOT_DEVICE_SPI;
 #endif
 
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
