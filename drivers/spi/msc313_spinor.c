@@ -9,20 +9,22 @@
 #include <linux/ioport.h>
 #include <log.h>
 
-#define REG_PASSWORD				0x0
-#define VAL_PASSWORD_UNLOCK			0xAAAA
-#define VAL_PASSWORD_LOCK			0x5555
-#define REG_SPI_WDATA				0x10
-#define REG_SPI_RDATA				0x14
-#define REG_SPI_CECLR				0x20
-#define BIT_SPI_CECLR_CLEAR			BIT(0)
-#define REG_SPI_RDREQ				0x30
-#define BIT_SPI_RDREQ_REQ			BIT(0)
-#define REG_SPI_RD_DATARDY			0x54
+#define REG_PASSWORD			0x0
+#define VAL_PASSWORD_UNLOCK		0xAAAA
+#define VAL_PASSWORD_LOCK		0x5555
+#define REG_SPI_WDATA			0x10
+#define REG_SPI_RDATA			0x14
+#define REG_SPI_CLKDIV			0x18
+#define VAL_SPI_CLKDIV_128		0x400
+#define REG_SPI_CECLR			0x20
+#define BIT_SPI_CECLR_CLEAR		BIT(0)
+#define REG_SPI_RDREQ			0x30
+#define BIT_SPI_RDREQ_REQ		BIT(0)
+#define REG_SPI_RD_DATARDY		0x54
 #define BIT_SPI_RD_DATARDY_READY	BIT(0)
-#define REG_SPI_WR_DATARDY			0x58
+#define REG_SPI_WR_DATARDY		0x58
 #define BIT_SPI_WR_DATARDY_READY	BIT(0)
-#define REG_TRIGGER_MODE			0xa8
+#define REG_TRIGGER_MODE		0xa8
 #define VAL_TRIGGER_MODE_ENABLE		0x3333
 #define VAL_TRIGGER_MODE_DISABLE	0x2222
 
@@ -145,6 +147,9 @@ static int msc313_spinor_probe(struct udevice *bus)
 
 	priv->regs = (u32 *) plat->reg_base;
 	priv->mem_base = (unsigned long *)plat->mem_base;
+
+	/* initially force the clock down to the lowest known rate */
+	iowrite16(VAL_SPI_CLKDIV_128, priv->regs + REG_SPI_CLKDIV);
 
 	return 0;
 }
