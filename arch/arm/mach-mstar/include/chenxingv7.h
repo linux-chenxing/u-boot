@@ -124,6 +124,7 @@ static inline void mstar_delay(unsigned long msec)
 
 #define DID				0x1f007000
 #define DID_BOOTSOURCE			0x1c0
+#define DID_BOOTSOURCE_SPI_NOR		BIT(5)
 #define DID_BOOTSOURCE_M5_SD		BIT(14)
 
 #define GPIO				0x1f207800

@@ -42,6 +42,10 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[index++] = BOOT_DEVICE_SPI;
 #endif
 
+#ifdef CONFIG_SPL_SPI_NAND_SUPPORT
+//	spl_boot_list[index++] = BOOT_DEVICE_SPINAND;
+#endif
+
 #ifdef CONFIG_SPL_YMODEM_SUPPORT
 	spl_boot_list[index++] = BOOT_DEVICE_UART;
 #endif
