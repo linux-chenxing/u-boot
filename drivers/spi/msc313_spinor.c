@@ -55,17 +55,20 @@ static void msc313_spinor_spi_transaction_start(struct msc313_spinor_priv *priv)
 	iowrite16(VAL_TRIGGER_MODE_ENABLE, priv->regs + REG_TRIGGER_MODE);
 }
 
-static void msc313_spinor_spi_writebyte(struct msc313_spinor_priv *priv, u8 value){
+static void msc313_spinor_spi_writebyte(struct msc313_spinor_priv *priv, u8 value)
+{
 	iowrite8(value, priv->regs + REG_SPI_WDATA);
 	while(!(ioread8(priv->regs + REG_SPI_WR_DATARDY) & BIT_SPI_WR_DATARDY_READY)){
 
 	};
 }
 
-static void msc313_spinor_spi_readbyte(struct msc313_spinor_priv *priv, u8 *dest){
+static void msc313_spinor_spi_readbyte(struct msc313_spinor_priv *priv, u8 *dest)
+{
 	u8 b;
+
 	iowrite8(BIT_SPI_RDREQ_REQ, priv->regs + REG_SPI_RDREQ);
-	while(!(ioread8(priv->regs + REG_SPI_RD_DATARDY) & BIT_SPI_RD_DATARDY_READY)){
+	while(!(readb_relaxed(priv->regs + REG_SPI_RD_DATARDY) & BIT_SPI_RD_DATARDY_READY)){
 
 	}
 	b = ioread8(priv->regs + REG_SPI_RDATA);
@@ -149,7 +152,7 @@ static int msc313_spinor_probe(struct udevice *bus)
 	priv->mem_base = (unsigned long *)plat->mem_base;
 
 	/* initially force the clock down to the lowest known rate */
-	iowrite16(VAL_SPI_CLKDIV_128, priv->regs + REG_SPI_CLKDIV);
+	iowrite16(0x40, priv->regs + REG_SPI_CLKDIV);
 
 	return 0;
 }
