@@ -110,6 +110,7 @@ static int mstar_phy_config(struct phy_device *phydev)
 			break;
 		case CHIPTYPE_MSC313E:
 		case CHIPTYPE_MSC313DC:
+		case CHIPTYPE_SSD202D:
 			msc313e_powerup(priv);
 			break;
 		default:
