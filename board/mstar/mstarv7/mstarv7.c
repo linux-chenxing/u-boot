@@ -104,7 +104,7 @@ static int miu_init(void)
 
 static void check_ipl(void)
 {
-	struct mstar_ipl *ipl = (struct mstar_ipl*) MSTAR_SRAM;
+	struct mstar_ipl *ipl = (struct mstar_ipl*) CONFIG_SPL_TEXT_BASE;
 	u32 *data = (void*)(ipl + 1), chksum = 0;
 	char ipl_hdr[sizeof(ipl->header) + 1] = {};
 	int i;
