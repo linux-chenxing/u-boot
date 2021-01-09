@@ -24,6 +24,7 @@
  *
  * Return: true if the block is bad, false otherwise.
  */
+#ifndef CONFIG_SPL_BUILD
 bool nanddev_isbad(struct nand_device *nand, const struct nand_pos *pos)
 {
 	if (nanddev_bbt_is_initialized(nand)) {
@@ -51,6 +52,7 @@ bool nanddev_isbad(struct nand_device *nand, const struct nand_pos *pos)
 
 	return nand->ops->isbad(nand, pos);
 }
+#endif
 EXPORT_SYMBOL_GPL(nanddev_isbad);
 
 /**
@@ -63,6 +65,7 @@ EXPORT_SYMBOL_GPL(nanddev_isbad);
  *
  * Return: 0 in case of success, a negative error code otherwise.
  */
+#ifndef CONFIG_SPL_BUILD
 int nanddev_markbad(struct nand_device *nand, const struct nand_pos *pos)
 {
 	struct mtd_info *mtd = nanddev_to_mtd(nand);
@@ -93,6 +96,7 @@ out:
 
 	return ret;
 }
+#endif
 EXPORT_SYMBOL_GPL(nanddev_markbad);
 
 /**
@@ -128,6 +132,7 @@ EXPORT_SYMBOL_GPL(nanddev_isreserved);
  *
  * Return: 0 in case of success, a negative error code otherwise.
  */
+#ifndef CONFIG_SPL_BUILD
 int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 {
 	unsigned int entry;
@@ -146,6 +151,7 @@ int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 
 	return nand->ops->erase(nand, pos);
 }
+#endif
 EXPORT_SYMBOL_GPL(nanddev_erase);
 
 /**
@@ -206,8 +212,10 @@ int nanddev_init(struct nand_device *nand, const struct nand_ops *ops,
 	if (!nand || !ops)
 		return -EINVAL;
 
+#ifndef CONFIG_SPL_BUILD
 	if (!ops->erase || !ops->markbad || !ops->isbad)
 		return -EINVAL;
+#endif
 
 	if (!memorg->bits_per_cell || !memorg->pagesize ||
 	    !memorg->pages_per_eraseblock || !memorg->eraseblocks_per_lun ||
