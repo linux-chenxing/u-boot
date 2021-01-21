@@ -1003,6 +1003,7 @@ dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
 dtb-$(CONFIG_ARCH_MSTARV7) += mstar-v7.dtb \
 			    infinity-msc313.dtb \
+			    mstar-infinity2m-ssd201.dtb \
 			    mstar-infinity2m-ssd202d.dtb \
 			    infinity3-msc313e.dtb \
 			    infinity6.dtb \

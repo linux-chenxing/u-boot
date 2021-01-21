@@ -19,7 +19,8 @@
 #define COMPAT_I1		"infinity"
 #define COMPAT_I1_MSC313	"infinity-msc313"
 #define COMPAT_I2M		"infinity2m"
-#define COMPAT_I2M_SSD202D	"infinity2m-ssd202d"
+#define COMPAT_I2M_SSD201	"mstar-infinity2m-ssd201"
+#define COMPAT_I2M_SSD202D	"mstar-infinity2m-ssd202d"
 #define COMPAT_I3		"infinity3"
 #define COMPAT_I3_MSC313E	"infinity3-msc313e"
 #define COMPAT_I6		"infinity6"
@@ -77,7 +78,8 @@ static inline void mstar_delay(unsigned long msec)
 #define CHIPTYPE_SSC8336		4
 #define CHIPTYPE_SSC8336N		5
 #define CHIPTYPE_SSC325			6
-#define CHIPTYPE_SSD202D		7
+#define CHIPTYPE_SSD201			7
+#define CHIPTYPE_SSD202D		8
 
 #define CHIPID_MSC313			0xae
 #define CHIPID_MSC313ED			0xc2 // this is the same for E and D
@@ -106,6 +108,7 @@ static inline void mstar_delay(unsigned long msec)
 #define EFUSE_20			0x20
 
 #define PINCTRL				0x1f203c00
+#define PINCTRL_120			0x120
 
 #define L3BRIDGE			0x1f204400
 #define L3BRIDGE_2C			0x2c
@@ -144,6 +147,8 @@ static const uint8_t* deviceid = (uint8_t*) CHIPID;
 static const void* efuse = (void*) EFUSE;
 
 static inline int mstar_chiptype(void){
+	uint16_t tmp;
+
 	debug("deviceid is %02x\n", (unsigned) *deviceid);
 	switch(*deviceid){
 		case CHIPID_MSC313:
@@ -158,10 +163,20 @@ static inline int mstar_chiptype(void){
 		case CHIPID_SSC8336N:
 			return CHIPTYPE_SSC8336N;
 		case CHIPID_SSD20XD:
-			return CHIPTYPE_SSD202D;
+			tmp = readw(PINCTRL + PINCTRL_120);
+			switch(tmp){
+			case 0x1d:
+				return CHIPTYPE_SSD201;
+			case 0x1e:
+				return CHIPTYPE_SSD202D;
+			default:
+				break;
+			}
+			break;
 		default:
-			return CHIPTYPE_UNKNOWN;
+			break;
 	}
+	return CHIPTYPE_UNKNOWN;
 }
 
 void mstar_bump_cpufreq(void);

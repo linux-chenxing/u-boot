@@ -64,6 +64,11 @@ int board_fit_config_name_match(const char *name)
 			break;
 #endif
 #ifdef CONFIG_MSTAR_INFINITY2M
+		case CHIPTYPE_SSD201:
+			if(!strcmp(name, COMPAT_I2M_SSD201)){
+				return 0;
+			}
+			break;
 		case CHIPTYPE_SSD202D:
 			if(!strcmp(name, COMPAT_I2M_SSD202D)){
 				return 0;
