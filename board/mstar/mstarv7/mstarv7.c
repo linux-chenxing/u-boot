@@ -178,10 +178,9 @@ void board_init_f(ulong dummy)
 	//mstar_clockfixup();
 }
 
-static struct image_header hdr;
 struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return &hdr;
+	return CONFIG_SYS_TEXT_BASE + offset;
 }
 
 #endif // spl

@@ -444,6 +444,7 @@ int spinand_upd_cfg(struct spinand_device *spinand, u8 mask, u8 val);
 int spinand_select_target(struct spinand_device *spinand, unsigned int target);
 
 int spl_spinand_init(void);
+int spl_spinand_peb_size(void);
 int spl_spinand_read_block(int block, int offset, int len, void *dst);
 
 #endif /* __LINUX_MTD_SPINAND_H */

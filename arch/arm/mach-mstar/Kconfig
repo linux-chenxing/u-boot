@@ -90,8 +90,11 @@ config SPL_TEXT_BASE
 config SPL_LDSCRIPT
 	default "arch/arm/mach-mstar/u-boot-spl.lds"
 
+# Set the text base to the bottom of DRAM + 1K before
+# for any headers that might be attached to start of
+# the u-boot image
 config SYS_TEXT_BASE
-	default	0x20000000
+	default 0x20001000
 
 # Because the SRAM is pretty small we need to start using
 # the DRAM for stack and heap as soon as possible.

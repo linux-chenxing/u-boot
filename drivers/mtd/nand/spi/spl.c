@@ -4,7 +4,12 @@
 static struct udevice *dev;
 static struct mtd_info *mtd;
 
-int spl_spinand_init(void)
+int spl_spinand_peb_size()
+{
+	return mtd->erasesize;
+}
+
+int spl_spinand_init()
 {
 	int ret;
 
@@ -23,11 +28,7 @@ int spl_spinand_read_block(int block, int offset, int len, void *dst)
 {
 	int ret;
 	size_t rlen;
+	loff_t nandoff = (spl_spinand_peb_size() * block) + offset;
 
-	//printf("b: %x, o: %x, l: %x\n", block, offset, len);
-
-	ret = mtd_read(mtd, block + offset, len, &rlen, dst);
-	//printf("mtd read ret = %d, rlen %d\n", ret, (unsigned) rlen);
-
-	return ret;
+	return mtd_read(mtd, nandoff, len, &rlen, dst);
 }

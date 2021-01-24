@@ -41,7 +41,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 		if(ret)
 			return ret;
 		info.read = spl_spinand_read_block;
-		info.peb_size =	131072;
+		info.peb_size =	spl_spinand_peb_size();
 		break;
 #endif
 	default:
