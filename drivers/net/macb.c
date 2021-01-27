@@ -1530,14 +1530,14 @@ static const struct macb_config sifive_config = {
 #ifdef CONFIG_ARCH_MSTARV7
 static const struct macb_config msc313_config = {
 	.macb_rx_buffer_sz = 0x600,
-	.macb_rx_ring_sz = 96,
+	.macb_rx_ring_sz = 8,
 	.reg_read = riu_readl,
 	.reg_write = riu_writel,
 };
 
 static const struct macb_config msc313e_config = {
 	.macb_rx_buffer_sz = 0x600,
-	.macb_rx_ring_sz = 96,
+	.macb_rx_ring_sz = 8,
 	.reg_index = 1,
 	.reg_read = xiu_readl,
 	.reg_write = xiu_writel,
