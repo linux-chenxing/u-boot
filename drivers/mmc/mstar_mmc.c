@@ -14,6 +14,7 @@
 #include <clk.h>
 #include <cache.h>
 #include <cpu_func.h>
+#include <dm/device_compat.h>
 
 #ifdef CONFIG_HEXDUMP
 #include <hexdump.h>
