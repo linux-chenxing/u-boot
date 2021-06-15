@@ -72,6 +72,8 @@ int nanddev_markbad(struct nand_device *nand, const struct nand_pos *pos)
 	unsigned int entry;
 	int ret = 0;
 
+	printf("mark bad\n");
+
 	if (nanddev_isbad(nand, pos))
 		return 0;
 
