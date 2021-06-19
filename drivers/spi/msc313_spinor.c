@@ -57,6 +57,9 @@ static void msc313_spinor_spi_transaction_start(struct msc313_spinor_priv *priv)
 
 static void msc313_spinor_spi_writebyte(struct msc313_spinor_priv *priv, u8 value)
 {
+#ifdef CONFIG_SPL_BUILD
+	printf("w: %02x\n", value);
+#endif
 	iowrite8(value, priv->regs + REG_SPI_WDATA);
 	while(!(ioread8(priv->regs + REG_SPI_WR_DATARDY) & BIT_SPI_WR_DATARDY_READY)){
 
@@ -71,7 +74,11 @@ static void msc313_spinor_spi_readbyte(struct msc313_spinor_priv *priv, u8 *dest
 	while(!(readb_relaxed(priv->regs + REG_SPI_RD_DATARDY) & BIT_SPI_RD_DATARDY_READY)){
 
 	}
+
 	b = ioread8(priv->regs + REG_SPI_RDATA);
+#ifdef CONFIG_SPL_BUILD
+//	printf("r: %02x\n", b);
+#endif
 	*dest = b;
 }
 
