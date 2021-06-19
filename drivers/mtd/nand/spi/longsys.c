@@ -98,7 +98,7 @@ static const struct spinand_info longsys_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&fs35nd01g_s1y2_ooblayout,
 				     fs35nd01g_s1y2_ecc_get_status)),
-	SPINAND_INFO("FS35ND01G-S3Y2", 0xEB,
+	SPINAND_INFO("FS35ND02G-S3Y2", 0xEB,
 		     NAND_MEMORG(1, 2048, 64, 64, 2048, 1, 1, 1),
 		     NAND_ECCREQ(4, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
