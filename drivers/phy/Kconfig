@@ -281,6 +281,14 @@ config PHY_IMX8MQ_USB
 	help
 	  Support the USB3.0 PHY in NXP i.MX8MQ SoC
 
+config PHY_MSC313_USB
+	bool "Mstar MSC313 USB PHY Driver"
+	depends on PHY
+	depends on ARCH_MSTARV7
+	help
+	  Support the USB phy on MStar/SigmaStar SoCs
+	  from the MSC313 onwards.
+
 source "drivers/phy/rockchip/Kconfig"
 source "drivers/phy/cadence/Kconfig"
 source "drivers/phy/ti/Kconfig"
