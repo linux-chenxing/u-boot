@@ -1045,7 +1045,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 
 #ifdef CONFIG_PHY_MSTAR
 	if (!phydev)
-		phydev = phy_device_create(bus, 0, MSC313E_PHY_ID, false, interface);
+		phydev = phy_device_create(bus, 0, MSC313E_PHY_ID, false);
 #endif
 
 	if (!phydev)
