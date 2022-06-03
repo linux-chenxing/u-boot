@@ -53,6 +53,6 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
-#define MSTARV7_CMDLINEOPTS "clk_ignore_unused usbcore.autosuspend=-1"
+#define MSTARV7_CMDLINEOPTS "quiet clk_ignore_unused usbcore.autosuspend=-1"
 
 #endif
