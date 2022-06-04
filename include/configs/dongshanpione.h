@@ -11,7 +11,8 @@
 	"bootargs=console=ttyS0,115200 "\
 	"ubi.fm_autoconvert=1 ubi.mtd=1 ubi.block=0,rootfs root=/dev/ubiblock0_4 "\
 	MSTARV7_CMDLINEOPTS"\0"\
-	"bootcmd_rescue=ubi readvol ${loadaddr} rescue; bootm ${loadaddr}\0"\
-	"bootcmd=ubi readvol ${loadaddr} kernel; bootm ${loadaddr}\0"
+	"dongshanpione_board=ssd202d-dongshanpione\0"\
+	"bootcmd_rescue=ubi readvol ${loadaddr} rescue; bootm ${loadaddr}#${dongshanpione_board}\0"\
+	"bootcmd=ubi readvol ${loadaddr} kernel; bootm ${loadaddr}#${dongshanpione_board}\0"
 
 #endif
