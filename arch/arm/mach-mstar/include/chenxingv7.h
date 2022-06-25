@@ -25,6 +25,7 @@
 #define COMPAT_I3_MSC313E	"mstar-infinity3-msc313e"
 #define COMPAT_I6		"infinity6"
 #define COMPAT_M5		"mercury5"
+#define COMPAT_P3_SSD210	"sstar-pioneer3-ssd210"
 #define COMPAT_GENERIC		"mstar-v7"
 
 static inline uint16_t mstar_writew(uint16_t value, uint32_t addr)

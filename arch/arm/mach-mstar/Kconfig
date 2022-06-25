@@ -84,6 +84,24 @@ config MSTARV7_COMMON
 	select SPL_STACK_R
 	select SPL_OPTIMIZE_INLINING
 
+config MSTARV7_SPINAND
+	bool
+	select CMD_UBI
+	select CMD_MTD
+	select CMD_MTDPARTS
+	select DM_MTD
+	select DM_SPI
+	select SPI
+	select SPL_SPI
+	select SPL_UBI
+	#select SPL_SPI_NAND_SUPPORT
+	select MTD
+	select MTD_UBI
+	select MTD_UBI_FASTMAP
+	select MTD_SPI_NAND
+	select ENV_IS_IN_UBI
+	select MSTAR_MSC313SPINOR
+
 choice
      prompt "Board type"
 
@@ -175,17 +193,9 @@ if MSTAR_PIONEER3
 config TARGET_PREDITA
 	bool "Predita"
 	select MSTARV7_COMMON
+	select MSTARV7_SPINAND
 	select PINCTRL
 	select PINCTRL_MSTAR
-	select SPL_SPI
-	select SPL_SPI
-	select SPL_UBI
-	select CMD_UBI
-	select CMD_MTDPARTS
-	select MTD
-	select MTD_UBI
-	select MTD_UBI_FASTMAP
-	select ENV_IS_IN_UBI
 endif
 
 endchoice

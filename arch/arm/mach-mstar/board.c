@@ -106,7 +106,7 @@ int board_fit_config_name_match(const char *name)
 #endif
 #ifdef CONFIG_MSTAR_PIONEER3
 		case CHIPTYPE_SSD210:
-			printf("here1\n");
+			printf("%s\n", name);
 			break;
 #endif
 	}
