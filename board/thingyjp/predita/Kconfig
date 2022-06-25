@@ -1,0 +1,47 @@
+if TARGET_PREDITA
+
+config SYS_BOARD
+	default "predita"
+
+config SYS_VENDOR
+	default "thingyjp"
+
+config SYS_CONFIG_NAME
+	default "predita"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+config OF_LIST
+	default "mstar-pioneer3-ssd210-predita"
+
+config DEFAULT_DEVICE_TREE
+	default "mstar-pioneer3-ssd210-predita"
+
+config ENV_UBI_PART
+	default "ubi"
+
+config ENV_UBI_VOLUME
+	default "env"
+
+config SPL_UBI
+        default y
+config SPL_UBI_MAX_VOL_LEBS
+        default 256
+config SPL_UBI_MAX_PEB_SIZE
+        default 131072
+# Enough for 512MB
+config SPL_UBI_MAX_PEBS
+        default 4096
+config SPL_UBI_VOL_IDS
+        default 8
+config SPL_UBI_PEB_OFFSET
+        default 118
+config SPL_UBI_VID_OFFSET
+        default 2048
+config SPL_UBI_LEB_START
+        default 4096
+config SPL_UBI_LOAD_MONITOR_ID
+        default 0
+
+endif
