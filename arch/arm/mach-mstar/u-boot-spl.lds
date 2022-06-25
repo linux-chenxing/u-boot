@@ -1,5 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 
+/*
+ * The SRAM is all a single region but due to the boot ROM
+ * we are limited to loading code into the first part of it.
+ * So to make sure no BSS ends up in the region we can load
+ * into split the loadable part and bss usable part into
+ * two regions.
+ */
 MEMORY { .sram : ORIGIN = IMAGE_TEXT_BASE,\
 		LENGTH = IMAGE_MAX_SIZE }
 MEMORY { .sram_bss : ORIGIN = CONFIG_SPL_BSS_START_ADDR, \

@@ -104,6 +104,11 @@ int board_fit_config_name_match(const char *name)
 				return 0;
 			break;
 #endif
+#ifdef CONFIG_MSTAR_PIONEER3
+		case CHIPTYPE_SSD210:
+			printf("here1\n");
+			break;
+#endif
 	}
 
 	//if(!strcmp(name, COMPAT_GENERIC))
@@ -196,9 +201,9 @@ void mstar_check_ipl(void)
 			ipl->size, ipl->chksum, chksum);
 
 	if(ipl->chksum != chksum)
-	{
 		printf("IPL image is broken\n");
-	}
+	else
+		printf("IPL image seems OK\n");
 }
 
 void mstar_poweron_reason(void)
@@ -245,7 +250,7 @@ int mstar_miu_init(void)
 
 struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return CONFIG_SYS_TEXT_BASE + offset;
+	return (struct image_header *) CONFIG_SYS_TEXT_BASE + offset;
 }
 
 int mstar_board_late_init(void)
@@ -346,8 +351,8 @@ void mstar_board_init_f(ulong dummy)
 	}
 
 #ifndef CONFIG_MSTAR_IPL
-	miu_init();
-	mstar_cpupll_init();
+	//miu_init();
+	//mstar_cpupll_init();
 #endif
 
 	mstar_bump_cpufreq();

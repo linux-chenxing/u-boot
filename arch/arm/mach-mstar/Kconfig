@@ -80,6 +80,9 @@ config MSTARV7_COMMON
 	bool
 	select MULTI_DTB_FIT
 	select FDT_FIXUP_PARTITIONS
+	select SPL_YMODEM_SUPPORT
+	select SPL_STACK_R
+	select SPL_OPTIMIZE_INLINING
 
 choice
      prompt "Board type"
@@ -167,6 +170,24 @@ config TARGET_MIYOOMINI
 	select MMC_MSTAR
 	select SPL_SPI
 endif
+
+if MSTAR_PIONEER3
+config TARGET_PREDITA
+	bool "Predita"
+	select MSTARV7_COMMON
+	select PINCTRL
+	select PINCTRL_MSTAR
+	select SPL_SPI
+	select SPL_SPI
+	select SPL_UBI
+	select CMD_UBI
+	select CMD_MTDPARTS
+	select MTD
+	select MTD_UBI
+	select MTD_UBI_FASTMAP
+	select ENV_IS_IN_UBI
+endif
+
 endchoice
 
 endmenu
@@ -232,6 +253,7 @@ config DEBUG_UART_SHIFT
 	default 3
 
 config SPL_SIZE_LIMIT
+	default 0xb000 if MSTAR_PIONEER3
 	default 0xc000
 
 config SYS_SOC
