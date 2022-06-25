@@ -8,7 +8,13 @@
 
 #include "../../arch/arm/mach-mstar/include/mstarv7.h"
 
-#ifdef CONFIG_MSTAR_INFINITY2M
+#ifdef CONFIG_MSTAR_PIONEER3
+/*
+ * For some reason they put only 57KB of SRAM
+ * into the p3.
+ */
+#define MSTAR_SRAM_SZ			0xe000
+#elif CONFIG_MSTAR_INFINITY2
 /*
  * For some reason they put only 64KB into
  * the i2m. So if i2m is enabled only use
@@ -18,7 +24,7 @@
 #elif CONFIG_MSTAR_INFINITY1
 /*
  * If i1 is selected but i2m isn't we can
- * used the 88KB that seems to be in the i1
+ * use the 88KB that seems to be in the i1
  * chips.
  */
 #define MSTAR_SRAM_SZ			0x16000

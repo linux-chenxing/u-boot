@@ -67,7 +67,7 @@ U_BOOT_DRIVER(mstar_miu) = {
 	.of_match = mstar_miu_ids,
 	.ops = &mstar_miu_ops,
 	.probe = mstar_miu_probe,
-	.priv_auto_alloc_size = sizeof(struct mstar_miu_priv),
+	.priv_auto = sizeof(struct mstar_miu_priv),
 };
 
 #endif

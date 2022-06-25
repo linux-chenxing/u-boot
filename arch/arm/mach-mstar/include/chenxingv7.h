@@ -80,6 +80,7 @@ static inline void mstar_delay(unsigned long msec)
 #define CHIPTYPE_SSC325			6
 #define CHIPTYPE_SSD201			7
 #define CHIPTYPE_SSD202D		8
+#define CHIPTYPE_SSD210			9
 
 #define CHIPID_MSC313			0xae
 #define CHIPID_MSC313ED			0xc2 // this is the same for E and D
@@ -89,6 +90,7 @@ static inline void mstar_delay(unsigned long msec)
 #define CHIPID_SSC325			0xef
 #define CHIPID_SSD20XD			0xf0
 #define CHIPID_SSC337DE			0xf2
+#define CHIPID_SSD210			0xf5
 
 #define PMSLEEP				0x1f001c00
 #define PMSLEEP_LOCK			0x48
@@ -173,6 +175,8 @@ static inline int mstar_chiptype(void){
 				break;
 			}
 			break;
+		case CHIPID_SSD210:
+			return CHIPTYPE_SSD210;
 		default:
 			break;
 	}
