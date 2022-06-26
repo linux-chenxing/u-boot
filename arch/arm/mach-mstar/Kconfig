@@ -84,23 +84,30 @@ config MSTARV7_COMMON
 	select SPL_STACK_R
 	select SPL_OPTIMIZE_INLINING
 
+config MSTARV7_SPIBOOT
+	bool
+	select DM_SPI
+	select SPI
+	select SPL_DM_SPI
+	select SPL_SPI
+	select SPL_LEGACY_IMAGE_CRC_CHECK
+	select MSTAR_MSC313SPINOR
+
 config MSTARV7_SPINAND
 	bool
+	select MSTARV7_SPIBOOT
 	select CMD_UBI
 	select CMD_MTD
 	select CMD_MTDPARTS
 	select DM_MTD
-	select DM_SPI
-	select SPI
-	select SPL_SPI
 	select SPL_UBI
-	#select SPL_SPI_NAND_SUPPORT
+	select SPL_SPI_NAND_SUPPORT
+	select SPL_MTD_SUPPORT
 	select MTD
 	select MTD_UBI
 	select MTD_UBI_FASTMAP
 	select MTD_SPI_NAND
 	select ENV_IS_IN_UBI
-	select MSTAR_MSC313SPINOR
 
 choice
      prompt "Board type"
