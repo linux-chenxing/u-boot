@@ -785,6 +785,15 @@ config SPL_SPI_NAND_SUPPORT
 	help
 	  xx
 
+if SPL_SPI_NAND_SUPPORT
+
+config	SPL_SPI_NAND_SUPPORT_LONGSYS
+	bool "Support Longsys SPI NAND"
+	help
+	  xx
+
+endif
+
 config SPL_UBI
 	bool "Support UBI"
 	help
