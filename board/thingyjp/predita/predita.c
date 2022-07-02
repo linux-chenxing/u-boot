@@ -24,7 +24,6 @@
 
 #include "chenxingv7.h"
 
-
 /* check that some required config options are selected */
 
 #ifndef CONFIG_BOARD_LATE_INIT
