@@ -119,7 +119,7 @@ static int mstar_cpupll_disable(struct clk *clk)
 	return 0;
 }
 
-const struct clk_ops mstar_cpupll_ops = {
+static const struct clk_ops mstar_cpupll_ops = {
 	.enable = mstar_cpupll_enable,
 	.disable = mstar_cpupll_disable,
 };
