@@ -16,27 +16,27 @@
 #define REG_CONFIG2	0xc
 #define REG_STATUS	0x10
 
-struct reg_field config1_loop_div_first = REG_FIELD(REG_CONFIG1, 8, 9);
-struct reg_field config1_input_div_first = REG_FIELD(REG_CONFIG1, 4, 5);
-struct reg_field config2_output_div_first = REG_FIELD(REG_CONFIG2, 12, 13);
-struct reg_field config2_loop_div_second = REG_FIELD(REG_CONFIG2, 0, 7);
-struct reg_field status_mpll_lock = REG_FIELD(REG_STATUS, 12, 12);
+static const struct reg_field config1_loop_div_first = REG_FIELD(REG_CONFIG1, 8, 9);
+static const struct reg_field config1_input_div_first = REG_FIELD(REG_CONFIG1, 4, 5);
+static const struct reg_field config2_output_div_first = REG_FIELD(REG_CONFIG2, 12, 13);
+static const struct reg_field config2_loop_div_second = REG_FIELD(REG_CONFIG2, 0, 7);
+static const struct reg_field status_mpll_lock = REG_FIELD(REG_STATUS, 12, 12);
 
 static const unsigned dividers[] = {
-		1, 2, 4, 8
+	1, 2, 4, 8
 };
 
 // premultiplied by 100
 static const ulong output_dividers[] = {
-		0,
-		125,
-		150,
-		200,
-		250,
-		300,
-		350,
-		348,
-		500,
+	0,
+	125,
+	150,
+	200,
+	250,
+	300,
+	350,
+	348,
+	500,
 };
 
 
@@ -120,7 +120,7 @@ static int mstar_mpll_disable(struct clk *clk)
 	return 0;
 }
 
-const struct clk_ops mstar_mpll_ops = {
+static const struct clk_ops mstar_mpll_ops = {
 	.get_rate = mstar_mpll_get_rate,
 	.enable = mstar_mpll_enable,
 	.disable = mstar_mpll_disable,
