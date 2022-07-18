@@ -2,5 +2,6 @@
 
 obj-y += clk-miupll.o \
 	 clk-cpupll.o \
+	 clk-upll.o \
 	 clk-mpll.o \
 	 clk-clkgen-mux.o

@@ -72,23 +72,19 @@ static ulong mstar_mpll_get_rate(struct clk *clk)
 	return output_rate;
 }
 
-extern uint mplldbg;
-extern uint mpllregs[];
-
 static int mstar_mpll_enable(struct clk *clk)
 {
 	struct mstar_mpll_priv *priv = dev_get_priv(clk->dev);
 	uint power;
 	uint lock;
 
-	mplldbg = 0x2;
-
+	/* If MPLL is run leave it alone */
 	regmap_read(priv->regmap, REG_POWER, &power);
-	if(power == 0){
-		printf("mpll is already running\n");
-		goto out;
-	}
+	if (power == 0)
+		return 0;
 
+#if 0
+	mplldbg = 0x2;
 	volatile u32 *mpllreg = (u32*)0x1f206000;
 	int reg = 2;
 	*(mpllreg + reg) = 0x0;
@@ -97,7 +93,7 @@ static int mstar_mpll_enable(struct clk *clk)
 	mpllregs[1] = *(mpllreg + reg);
 	*(mpllreg + reg) = 0x0100;
 	mpllregs[2] = *(mpllreg + reg);
-
+#endif
 
 
 	// this might be power control for the pll?
@@ -109,8 +105,6 @@ static int mstar_mpll_enable(struct clk *clk)
 	regmap_write(priv->regmap, REG_POWER, 0);
 	// vendor code has a delay
 	mdelay(10);
-
-out:
 
 	return 0;
 }

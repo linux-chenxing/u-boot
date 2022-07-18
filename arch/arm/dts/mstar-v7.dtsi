@@ -275,12 +275,13 @@
 				clocks = <&xtal_div2>;
 			};
 
-			miu: miu@202200 {
+			miu: miu@202000 {
 				compatible = "mstar,msc313-miu";
 				u-boot,dm-spl;
 				u-boot,dm-preloc;
-				reg = <0x202000 100>,
-				      <0x202400 100>;
+				reg = <0x202000 0x200>,
+				      <0x202400 0x200>,
+				      <0x202200 0x200>;
 				clock-names = "miupll";
 				clocks = <&miupll>;
 			};
@@ -360,6 +361,15 @@
 				assigned-clocks = <&clkgen_mux_uart 0>;
 				assigned-clock-parents = <&mpll MSTAR_MPLL_172>;
 				/*clock-frequency = <12000000>;*/
+			};
+
+			upll0: upll@284000 {
+				compatible = "mstar,upll";
+				reg = <0x284000 0x80>;
+				#clock-cells = <0>;
+				clocks = <&xtal>;
+				u-boot,dm-spl;
+				u-boot,dm-preloc;
 			};
 
 			utmi0: utmi@284200 {

@@ -35,7 +35,7 @@ struct mstar_cpupll_priv {
 	struct clk clk;
 };
 
-static void mstar_cpu_clk_readback(void)
+static ulong mstar_cpupll_getrate(struct clk *clk)
 {
 	uint16_t readback;
 
@@ -51,14 +51,16 @@ static void mstar_cpu_clk_readback(void)
 
 	readback = readw(0x1f203dc4);
 
-	printf("readback: %04x\n", readback);
+	//printf("CPU frequency: %04x\n", readback);
 
+	return readback * 36000;
 }
 
 #define FREQ_400 0x0067AE14
 #define FREQ_800 0x0043b3d5
 #define FREQ_1000 0x002978d4
-#define BUMPFREQ FREQ_800
+#define STARTUPFREQ FREQ_800
+#define BUMPFREQ FREQ_400
 
 void mstar_bump_cpufreq(void)
 {
@@ -85,7 +87,7 @@ void mstar_bump_cpufreq(void)
 		printf("waiting for cpupll lock\n");
 	}
 
-	mstar_cpu_clk_readback();
+	//mstar_cpu_clk_readback();
 }
 
 static int mstar_cpupll_enable(struct clk *clk)
@@ -93,12 +95,17 @@ static int mstar_cpupll_enable(struct clk *clk)
 	struct mstar_cpupll_priv *priv = dev_get_priv(clk->dev);
 	uint temp;
 
+	if (readw(0x1f2041f0) == 0x0001) {
+		printf("cpupll is already running? leaving alone..\n");
+		return 0;
+	}
+
 	regmap_write(priv->regmap, CPUPLL_48, 0x0088);
 	regmap_read(priv->regmap, CPUPLL_44, &temp);
 	regmap_write(priv->regmap, CPUPLL_44, temp | 0x0100);
 
-	regmap_write(priv->regmap, CPUPLL_CURFREQ_L, 0xAE14);
-	regmap_write(priv->regmap, CPUPLL_CURFREQ_H, 0x0067);
+	regmap_write(priv->regmap, CPUPLL_CURFREQ_L, STARTUPFREQ);
+	regmap_write(priv->regmap, CPUPLL_CURFREQ_H, STARTUPFREQ >> 16);
 
 	regmap_write(priv->regmap, CPUPLL_188, 1);
 	regmap_write(priv->regmap, CPUPLL_44, temp & ~0x0100);
@@ -122,6 +129,7 @@ static int mstar_cpupll_disable(struct clk *clk)
 static const struct clk_ops mstar_cpupll_ops = {
 	.enable = mstar_cpupll_enable,
 	.disable = mstar_cpupll_disable,
+	.get_rate = mstar_cpupll_getrate,
 };
 
 static int mstar_cpupll_probe(struct udevice *dev)

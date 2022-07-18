@@ -4,22 +4,21 @@
  */
 
 #include <asm/u-boot.h>
+#include <asm/io.h>
 #include <common.h>
+#include <clk.h>
+#include <chenxingv7.h>
+#include <dm.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <env.h>
 #include <u-boot/crc.h>
 #include <debug_uart.h>
-#include <asm/io.h>
-#include <dm.h>
-#include <clk.h>
 #include <init.h>
 #include <ipl.h>
 #include <image.h>
-#include <chenxingv7.h>
 #include <jffs2/load_kernel.h>
 #include <mtd_node.h>
-
 #include <mstar/board.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -121,29 +120,23 @@ int board_init(void)
 {
 	mstar_bump_cpufreq();
 
-	// this is needed stop FIQ interrupts bypassing the GIC
-	// mstar had this in their irqchip driver but I've moved
-	// this here to keep the mess out of view.
+	/*
+	 * this is needed stop FIQ interrupts bypassing the GIC
+	 * mstar had this in their irqchip driver but I've moved
+	 * this here to keep the mess out of view.
+	 */
 	u32 *gicreg = (u32*)(0x16000000 + 0x2000);
 	*gicreg = 0x1e0;
 	return 0;
 }
 
-/*
- */
-
-#include <common.h>
-#include <asm/io.h>
-
-#include "chenxingv7.h"
-#include "clk.h"
-
-void mstar_clockfixup()
+void mstar_clockfixup(void)
 {
 	// once the DDR is running the deglitch clock doesn't work anymore.
 	writew_relaxed(0x10, CLKGEN + CLKGEN_BDMA);
 }
 
+#ifndef CONFIG_SPL_BUILD
 int mstar_fill_macaddress(void)
 {
 	int i,j;
@@ -185,6 +178,7 @@ int mstar_fill_macaddress(void)
 	}
 	return 0;
 }
+#endif
 
 void mstar_check_ipl(void)
 {
@@ -210,13 +204,13 @@ void mstar_poweron_reason(void)
 {
 	bool wakingup = false;
 
-	if(readw(PMSLEEP + PMSLEEP_LOCK) == PMSLEEP_LOCK_MAGIC){
+	printk("Power on reason: ");
+	if (readw(PMSLEEP + PMSLEEP_LOCK) == PMSLEEP_LOCK_MAGIC) {
 		printf("woken from sleep\n");
 		wakingup = true;
 	}
-	else {
+	else
 		printf("normal power on\n");
-	}
 }
 
 int mstar_cpupll_init(void)
@@ -225,25 +219,17 @@ int mstar_cpupll_init(void)
 	int rv;
 	struct clk clk;
 
+	printf("Setting up CPUPLL\n");
+
 	rv = uclass_get_device_by_name(UCLASS_CLK, "cpupll@206400",
 			&dev);
 	if (rv)
-		debug("CPUPLL init failed: %d\n", rv);
+		printf("CPUPLL init failed: %d\n", rv);
 
 	clk.dev = dev;
 	clk_enable(&clk);
 
-	return rv;
-}
-
-int mstar_miu_init(void)
-{
-	struct udevice *dev;
-	int rv;
-
-	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (rv)
-		debug("DRAM init failed: %d\n", rv);
+	printf("CPUPLL running at %dMHz\n", (unsigned int) (clk_get_rate(&clk) / 1000000));
 
 	return rv;
 }
@@ -289,9 +275,6 @@ __weak int ft_board_setup(void *blob, struct bd_info *bd)
 	return mstar_ft_board_setup(blob, bd);
 }
 
-u32 mpllregs[5];
-uint mplldbg;
-
 #ifdef CONFIG_SPL_BUILD
 static void m5_misc(void)
 {
@@ -310,17 +293,57 @@ static void m5_misc(void)
 }
 
 #ifndef CONFIG_MSTAR_IPL
-static int miu_init(void)
+static void mstar_ddr_test(void)
+{
+	bool failed = false;
+
+	printf("Testing DRAM...\n");
+
+	for (int i = 0; i < 0x10; i++) {
+		if (mstar_writereadback_l(0xAAAA5555, MSTAR_DRAM + (i * 4)) != 0xAAAA5555)
+			failed = true;
+	}
+	if (failed) {
+
+		printf("DRAM test failed!\n");
+		while (1){
+		}
+	}
+
+	printf("DRAM test OK\n");
+}
+
+static inline int mstar_clock_init(void)
+{
+	struct udevice *dev;
+	struct clk clk;
+	int rv;
+
+	rv = uclass_get_device_by_name(UCLASS_CLK, "upll@284000",
+			&dev);
+
+	clk.dev = dev;
+	clk_enable(&clk);
+
+	return rv;
+}
+
+int mstar_dram_init(void)
 {
 	struct udevice *dev;
 	int rv;
 
+	printf("Doing DRAM setup...\n");
+
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (rv)
-		debug("DRAM init failed: %d\n", rv);
+		debug("DRAM setup failed failed: %d\n", rv);
+
+	printf("DRAM setup OK!\n");
 
 	return rv;
 }
+
 #endif
 
 void mstar_board_init_f(ulong dummy)
@@ -328,18 +351,18 @@ void mstar_board_init_f(ulong dummy)
 	uint32_t cpuid;
 	int chiptype = mstar_chiptype();
 	void* reg;
-
-#ifdef CONFIG_DEBUG_UART
-	debug_uart_init();
-#endif
+	u8 bond;
 
 	spl_early_init();
 	preloader_console_init();
 
 	asm volatile("mrc p15, 0, %0, c0, c0, 0" : "=r"(cpuid));
-	printf("\ncpuid: %x, mstar chipid: %x\n",
+	bond = readb(BOND);
+
+	printf("\ncpuid: %x, mstar chipid: %x, bond value %02x\n",
 			(unsigned) cpuid,
-			(unsigned)*deviceid);
+			(unsigned) *deviceid,
+			(unsigned) bond);
 
 	mstar_check_ipl();
 	mstar_poweron_reason();
@@ -350,20 +373,18 @@ void mstar_board_init_f(ulong dummy)
 			break;
 	}
 
+/* If booting from the IPL leave the DDR settings alone */
 #ifndef CONFIG_MSTAR_IPL
-	//miu_init();
-	//mstar_cpupll_init();
+	mstar_clock_init();
+	mstar_dram_init();
+	mstar_cpupll_init();
+	mstar_ddr_test();
 #endif
 
 	mstar_bump_cpufreq();
 
-	printf("mplldbg %x\n", mplldbg);
-	for(int i = 0; i < 5; i++){
-		printf("mpll: %x - %x\n", i * 4, mpllregs[i]);
-	}
-
 	//mstar_utmi_setfinetuning();
-	//mstar_clockfixup();
+	mstar_clockfixup();
 }
 
 __weak void board_init_f(ulong dummy)
