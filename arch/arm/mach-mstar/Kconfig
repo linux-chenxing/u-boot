@@ -79,7 +79,7 @@ config MSTAR_PIONEER3
 config MSTARV7_COMMON
 	bool
 	select MULTI_DTB_FIT
-	select FDT_FIXUP_PARTITIONS
+#	select FDT_FIXUP_PARTITIONS
 	select SPL_YMODEM_SUPPORT
 	select SPL_STACK_R
 	select SPL_OPTIMIZE_INLINING
@@ -200,7 +200,7 @@ if MSTAR_PIONEER3
 config TARGET_PREDITA
 	bool "Predita"
 	select MSTARV7_COMMON
-	select MSTARV7_SPINAND
+#	select MSTARV7_SPINAND
 	select PINCTRL
 	select PINCTRL_MSTAR
 endif
@@ -270,7 +270,9 @@ config DEBUG_UART_SHIFT
 	default 3
 
 config SPL_SIZE_LIMIT
-	default 0xb000 if MSTAR_PIONEER3
+	#For p3 the SRAM is 0xe000 long but the bootrom has variables at 0x7800
+	default 0x7800 if MSTAR_PIONEER3
+	#For i2m the SRAM is 0x10000 long but the bootrom has variables at 0xa000
 	default 0xc000
 
 config SYS_SOC

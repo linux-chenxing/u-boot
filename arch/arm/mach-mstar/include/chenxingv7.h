@@ -40,11 +40,15 @@ static inline uint16_t mstar_writew(uint16_t value, uint32_t addr)
 
 static inline uint32_t mstar_writereadback_l(uint32_t value, uint32_t addr)
 {
-	uint32_t pre = readw(addr);
-	uint32_t post;
+	uint32_t pre, post;
+
+	printf("Writing 0x%08x to 0x%08x -- ", value, addr);
+	pre = readl(addr);
+	printf("Was: 0x%08x ", pre);
 	writel(value, addr);
 	post = readl(addr);
-	printf("wrote %08x to %08x, was %08x, readback %08x\n", value, addr, pre, post);
+	printf("Read back: 0x%08x\n", post);
+
 	return post;
 }
 
@@ -136,6 +140,8 @@ static inline void mstar_delay(unsigned long msec)
 #define GPIO				0x1f207800
 #define GPIO_18				0x18
 #define GPIO_18_D9_DDRMASK		0xf
+
+#define BOND				0x1f203d20
 
 #define SCCLKGEN			0x1f226600
 

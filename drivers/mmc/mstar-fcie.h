@@ -28,36 +28,36 @@
 #define REG_RST			0xfc
 #define RST_NRST		0
 
-static struct reg_field dma_addr_l_field = REG_FIELD(REG_DMA_ADDR_L, 0, 15);
-static struct reg_field dma_addr_h_field = REG_FIELD(REG_DMA_ADDR_H, 0, 15);
-static struct reg_field dma_len_l_field = REG_FIELD(REG_DMA_LEN_L, 0, 15);
-static struct reg_field dma_len_h_field = REG_FIELD(REG_DMA_LEN_H, 0, 15);
+static const struct reg_field dma_addr_l_field = REG_FIELD(REG_DMA_ADDR_L, 0, 15);
+static const struct reg_field dma_addr_h_field = REG_FIELD(REG_DMA_ADDR_H, 0, 15);
+static const struct reg_field dma_len_l_field = REG_FIELD(REG_DMA_LEN_L, 0, 15);
+static const struct reg_field dma_len_h_field = REG_FIELD(REG_DMA_LEN_H, 0, 15);
 
-static struct reg_field sd_mode_clken_field = REG_FIELD(REG_SD_MODE, 0, 0);
-static struct reg_field sd_mode_buswidth_field = REG_FIELD(REG_SD_MODE, 1, 2);
+static const struct reg_field sd_mode_clken_field = REG_FIELD(REG_SD_MODE, 0, 0);
+static const struct reg_field sd_mode_buswidth_field = REG_FIELD(REG_SD_MODE, 1, 2);
 
-static struct reg_field func_ctrl_field = REG_FIELD(REG_FUNC_CTRL, 0, 2);
+static const struct reg_field func_ctrl_field = REG_FIELD(REG_FUNC_CTRL, 0, 2);
 
-static struct reg_field st_ctl_rspr2en_field = REG_FIELD(REG_SD_CTL, 0, 0);
-static struct reg_field st_ctl_rspen_field = REG_FIELD(REG_SD_CTL, 1, 1);
-static struct reg_field st_ctl_cmden_field = REG_FIELD(REG_SD_CTL, 2, 2);
-static struct reg_field st_ctl_dtrfen_field = REG_FIELD(REG_SD_CTL, 3, 3);
-static struct reg_field st_ctl_jobdir_field = REG_FIELD(REG_SD_CTL, 4, 4);
-static struct reg_field st_ctl_admaen_field = REG_FIELD(REG_SD_CTL, 5, 5);
-static struct reg_field st_ctl_busydeten_field = REG_FIELD(REG_SD_CTL, 8, 8);
-static struct reg_field st_ctl_errdeten_field = REG_FIELD(REG_SD_CTL, 9, 9);
-static struct reg_field st_ctl_jobstart_field = REG_FIELD(REG_SD_CTL, 6, 6);
+static const struct reg_field st_ctl_rspr2en_field = REG_FIELD(REG_SD_CTL, 0, 0);
+static const struct reg_field st_ctl_rspen_field = REG_FIELD(REG_SD_CTL, 1, 1);
+static const struct reg_field st_ctl_cmden_field = REG_FIELD(REG_SD_CTL, 2, 2);
+static const struct reg_field st_ctl_dtrfen_field = REG_FIELD(REG_SD_CTL, 3, 3);
+static const struct reg_field st_ctl_jobdir_field = REG_FIELD(REG_SD_CTL, 4, 4);
+static const struct reg_field st_ctl_admaen_field = REG_FIELD(REG_SD_CTL, 5, 5);
+static const struct reg_field st_ctl_busydeten_field = REG_FIELD(REG_SD_CTL, 8, 8);
+static const struct reg_field st_ctl_errdeten_field = REG_FIELD(REG_SD_CTL, 9, 9);
+static const struct reg_field st_ctl_jobstart_field = REG_FIELD(REG_SD_CTL, 6, 6);
 
-static struct reg_field cmd_rsp_size_cmdsz_field = REG_FIELD(REG_CMDRSP_SIZE, 8, 15);
-static struct reg_field cmd_rsp_size_rspsz_field = REG_FIELD(REG_CMDRSP_SIZE, 0, 7);
+static const struct reg_field cmd_rsp_size_cmdsz_field = REG_FIELD(REG_CMDRSP_SIZE, 8, 15);
+static const struct reg_field cmd_rsp_size_rspsz_field = REG_FIELD(REG_CMDRSP_SIZE, 0, 7);
 
-static struct reg_field sd_sts_status_field = REG_FIELD(REG_SD_STS, 0, 6);
-static struct reg_field sd_sts_cardbusy_field = REG_FIELD(REG_SD_STS, 6, 6);
+static const struct reg_field sd_sts_status_field = REG_FIELD(REG_SD_STS, 0, 6);
+static const struct reg_field sd_sts_cardbusy_field = REG_FIELD(REG_SD_STS, 6, 6);
 
-static struct reg_field blocksize_field = REG_FIELD(REG_BLOCK_SIZE, 0, 15);
-static struct reg_field blockcount_field = REG_FIELD(REG_BLOCK_COUNT, 0, 15);
+static const struct reg_field blocksize_field = REG_FIELD(REG_BLOCK_SIZE, 0, 15);
+static const struct reg_field blockcount_field = REG_FIELD(REG_BLOCK_COUNT, 0, 15);
 
-static struct reg_field bootmode_imisel_field = REG_FIELD(REG_BOOT_MODE, 2, 2);
+static const struct reg_field bootmode_imisel_field = REG_FIELD(REG_BOOT_MODE, 2, 2);
 
-static struct reg_field rst_nrst_field = REG_FIELD(REG_RST, RST_NRST, RST_NRST);
-static struct reg_field rst_status_field = REG_FIELD(REG_RST, 1, 4);
+static const struct reg_field rst_nrst_field = REG_FIELD(REG_RST, RST_NRST, RST_NRST);
+static const struct reg_field rst_status_field = REG_FIELD(REG_RST, 1, 4);
