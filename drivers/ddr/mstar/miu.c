@@ -7,9 +7,10 @@
 #include <chenxingv7.h>
 
 #include "arb.h"
+#include "clk.h"
+#include "debug.h"
 #include "miu.h"
 #include "mmu.h"
-#include "clk.h"
 
 #define NUM_GROUPS 8
 
@@ -46,8 +47,7 @@ struct ddr_config {
 };
 
 struct mstar_miu_priv {
-	struct regmap	*ana;
-	struct regmap	*dig;
+	struct regmap	*ana, *dig, *arb;
 	struct clk	miupll;
 
 	/* ctrl */
@@ -74,34 +74,36 @@ struct mstar_miu_priv {
 	struct regmap_field *protect2_start;
 };
 
-static int mstar_regmap_write(struct regmap *map, uint offset, uint val)
-{
-	int ret;
-	uint readback;
-
-	printf("regmap write 0x%08x -> 0x%08x\n",
-			(unsigned int) (map->ranges[0].start + offset),
-			(unsigned int) val);
-
-	regmap_write(map, offset, val);
-	regmap_read(map, offset, &readback);
-
-	if (readback != val)
-		printf("regmap write wanted %x, got %x\n", val, readback);
-
-	return 0;
-}
-
 /* -- confirmed in SSD210 ipl code -- */
 static inline void miu_dig_rst(struct regmap *dig)
 {
-	// what is the 0xc00 part?
-	mstar_regmap_write(dig, MIU_DIG_SW_RST, MIU_DIG_SW_RST_MIU | 0xc00);
+	int i;
+
+	/* IPL writes the default value multiple times */
+	for (i = 0; i < 3; i++)
+		mstar_regmap_write(dig, MIU_DIG_SW_RST,
+				MIU_DIG_SW_RST_VALUE);
+
+	/* Then sets reset */
+	mstar_regmap_write(dig, MIU_DIG_SW_RST,
+			MIU_DIG_SW_RST_MIU |
+			MIU_DIG_SW_RST_VALUE);
 }
 
 static void mstar_ddr_dig_rst_release(struct regmap *dig)
 {
-	mstar_regmap_write(dig,  MIU_DIG_SW_RST, 0x8c00);
+	/*
+	 * Not sure if this is needed by the IPL sets the NO_RQ_CTRL_EN bit
+	 * and then releases reset.
+	 */
+	mstar_regmap_write(dig,  MIU_DIG_SW_RST,
+			MIU_DIG_NO_RQ_CTRL_EN |
+			MIU_DIG_SW_RST_MIU |
+			MIU_DIG_SW_RST_VALUE);
+
+	mstar_regmap_write(dig,  MIU_DIG_SW_RST,
+			MIU_DIG_NO_RQ_CTRL_EN |
+			MIU_DIG_SW_RST_VALUE);
 }
 
 static inline void mstar_ddr_setrqvalues(const struct ddr_config *config, const int *values, int reg)
@@ -145,7 +147,7 @@ static void mstar_ddr_setinitrequestmasks(const struct ddr_config *config)
  */
 static inline void miu_ana_reset(const struct mstar_miu_priv *miu)
 {
-	// drive cal software mode
+	/* drive cal software mode */
 	mstar_regmap_write(miu->ana, MIU_ANA_F0, 1);
 	mstar_delay(1000);
 	mstar_regmap_write(miu->ana, MIU_ANA_DDRAT_23_16, 0x1000);
@@ -168,27 +170,27 @@ static bool mstar_ddr_isconfigured(const struct mstar_miu_priv *miu, const struc
 	return false;
 }
 
-static void miu_setdigconfig(const struct mstar_miu_priv *miu,
+static void miu_memory_config(const struct mstar_miu_priv *miu,
 		const struct ddr_config *config)
 {
 	/* Config 1 */
-	regmap_field_write(miu->memtype, MSTAR_DRAM_DDR2);
-	regmap_field_write(miu->buswidth, 0);
-	regmap_field_write(miu->banks, 1);
-	regmap_field_write(miu->cols, 2);
-	regmap_field_write(miu->data_ratio, 2);
-	regmap_field_write(miu->data_swap, 0);
-	regmap_field_write(miu->cke_oenz, 0);
-	regmap_field_write(miu->adr_oenz, 0);
-	regmap_field_write(miu->dq_oenz, 0);
-	regmap_field_write(miu->cko_oenz, 0);
+	mstar_regmap_field_write(miu->memtype, MSTAR_DRAM_DDR2);
+	mstar_regmap_field_write(miu->buswidth, 0);
+	mstar_regmap_field_write(miu->banks, 1);
+	mstar_regmap_field_write(miu->cols, 2);
+	mstar_regmap_field_write(miu->data_ratio, 2);
+	mstar_regmap_field_write(miu->data_swap, 0);
+	mstar_regmap_field_write(miu->cke_oenz, 0);
+	mstar_regmap_field_write(miu->adr_oenz, 0);
+	mstar_regmap_field_write(miu->dq_oenz, 0);
+	mstar_regmap_field_write(miu->cko_oenz, 0);
 
 	/* Config 2 */
-	regmap_field_write(miu->rdtiming, config->rdtiming);
-	regmap_field_write(miu->tdqss, config->tdqss);
-	regmap_field_write(miu->i64mode, 0);
-	regmap_field_write(miu->mcpen, 0);
-	regmap_field_write(miu->mcptype, 0);
+	mstar_regmap_field_write(miu->rdtiming, config->rdtiming);
+	mstar_regmap_field_write(miu->tdqss, config->tdqss);
+	mstar_regmap_field_write(miu->i64mode, 0);
+	mstar_regmap_field_write(miu->mcpen, 0);
+	mstar_regmap_field_write(miu->mcptype, 0);
 
 	/* Config 3 */
 	mstar_regmap_write(miu->dig, REG_CONFIG3, 0x1b50);
@@ -200,29 +202,31 @@ static void miu_setdigconfig(const struct mstar_miu_priv *miu,
 	mstar_regmap_write(miu->dig, REG_CONFIG5, 0x2777);
 
 	/* Config 6 */
-	regmap_field_write(miu->twl, config->twl);
-	regmap_field_write(miu->twr, config->twr);
-	regmap_field_write(miu->twtr, config->twtr);
-	regmap_field_write(miu->trtw, config->trtw);
+	mstar_regmap_field_write(miu->twl, config->twl);
+	mstar_regmap_field_write(miu->twr, config->twr);
+	mstar_regmap_field_write(miu->twtr, config->twtr);
+	mstar_regmap_field_write(miu->trtw, config->trtw);
 
 	/* Config 7 */
-	regmap_field_write(miu->trfc, config->trfc);
-	regmap_field_write(miu->txp, config->txp);
-	regmap_field_write(miu->tccd, config->tccd);
+	mstar_regmap_field_write(miu->trfc, config->trfc);
+	mstar_regmap_field_write(miu->txp, config->txp);
+	mstar_regmap_field_write(miu->tccd, config->tccd);
 
 	/* mode registers */
-	regmap_field_write(miu->mr0, config->mr0);
-	regmap_field_write(miu->mr1, config->mr1);
-	regmap_field_write(miu->mr2, config->mr2);
-	regmap_field_write(miu->mr3, config->mr3);
+	mstar_regmap_field_write(miu->mr0, config->mr0);
+	mstar_regmap_field_write(miu->mr1, config->mr1);
+	mstar_regmap_field_write(miu->mr2, config->mr2);
+	mstar_regmap_field_write(miu->mr3, config->mr3);
+
+	/* not sure yet, in p3 ipl */
+	mstar_regmap_write(miu->dig, MIU_DIG_50, 0x0070);
 
 	/* protect2 */
-	regmap_field_write(miu->protect2_start, 0x6000);
+	mstar_regmap_field_write(miu->protect2_start, 0x6000);
 
-	// p3 bits
-	mstar_regmap_write(miu->dig, MIU_DIG_50, 0x0070);
-	mstar_regmap_write(miu->dig, MIU_DIG_ADDR_BAL_SEL, 0x8021);
-	mstar_regmap_write(miu->dig, MIU_DIG_70, 0x0);
+	// dgp, probably need to be moved.
+	//mstar_regmap_write(miu->dig, MIU_DIG_ADDR_BAL_SEL, 0x8021);
+	//mstar_regmap_write(miu->dig, MIU_DIG_70, 0x0);
 	//
 
 
@@ -231,12 +235,8 @@ static void miu_setdigconfig(const struct mstar_miu_priv *miu,
 	//mstar_regmap_write(miu->dig, MIU_DIG_TIMING3, 0x4046);
 
 	// 2450, only on m5?
-	// also in p3
-	mstar_writew(0x0020, MIU_ANA + MIU_ANA_50);
-
-	mstar_mmu_init();
-
-	mstar_arb_mystery();
+	// also in p3 but maybe not here?
+	//mstar_regmap_writew(miu->ana, MIU_ANA_50, 0x0020);
 }
 
 static int mstar_ddr_doinitialcycle(const struct mstar_miu_priv *miu,
@@ -356,6 +356,8 @@ static void mstar_ddr_analogconfig(const struct ddr_config *config)
 static inline void miu_ana_powerup(const struct mstar_miu_priv *miu,
 		const struct ddr_config *config)
 {
+	/* Confirmed in P3 ipl */
+
 	mstar_writew(0x2010, MIU_ANA + MIU_ANA_00);
 	mstar_writew(0x0000, MIU_ANA + MIU_ANA_00);
 	mstar_writew(0x0000, MIU_ANA + MIU_ANA_30);
@@ -701,23 +703,32 @@ static void miu_configure_dram(const struct mstar_miu_priv *miu)
 		return;
 	}
 
-	printf("-- 1 --\n");
 	/* Put the digital part into reset */
 	miu_dig_rst(dig);
+
 	/* Configure the initial request masks so everything is blocked */
 	mstar_ddr_setinitrequestmasks(&config);
+
+	/* Reset the analog section */
 	miu_ana_reset(miu);
+
+	/* Fire up the ddrpll */
 	mstar_ddr_setclkfreq(miu, &config);
-	printf("-- 2 --\n");
-	miu_setdigconfig(miu, &config);
-	printf("-- 3 -- \n");
+
+	/* Configure the digital section for the connected memory */
+	miu_memory_config(miu, &config);
+
+	mstar_mmu_init();
+
+	mstar_arb_mystery(miu->arb);
+
 	miu_ana_mystery(miu, &config);
-	printf("-- 4 --\n");
+
 	miu_configure_rqs(miu, &config);
-	printf("--- 4a ---\n");
+
 	mstar_ddr_analogconfig(&config);
 	mstar_ddr_dig_rst_release(dig);
-	printf("-- 5 --\n");
+
 	miu_ana_powerup(miu, &config);
 	if (mstar_ddr_doinitialcycle(miu, &config))
 		goto out;
@@ -788,6 +799,10 @@ static int mstar_miu_probe(struct udevice *dev)
 		goto out;
 
 	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->dig, 1);
+	if (ret)
+		goto out;
+
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->arb, 2);
 	if (ret)
 		goto out;
 

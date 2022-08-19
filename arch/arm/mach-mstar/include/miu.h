@@ -191,12 +191,19 @@ static const struct reg_field miu_mr3_field = REG_FIELD(MIU_DIG_MR3, 0, 15);
 static const struct reg_field miu_mrx_field = REG_FIELD(MIU_DIG_MRX, 0, 15);
 
 #define MIU_DIG_SW_RST			0x3c
+/* For p3 the reset value is 0x8004, the ipl writes 0xc00 3 times */
+#define MIU_DIG_SW_RST_VALUE		0xc00
 #define MIU_DIG_SW_RST_MIU		BIT(0)
 #define MIU_DIG_SW_RST_SW_INIT_DONE	BIT(3)
 #define MIU_DIG_SW_RST_G0		BIT(4)
 #define MIU_DIG_SW_RST_G1		BIT(5)
 #define MIU_DIG_SW_RST_G2		BIT(6)
 #define MIU_DIG_SW_RST_G3		BIT(7)
+#define MIU_DIG_NO_RQ_CTRL_EN		BIT(15)
+static const struct reg_field miu_swrst_syncoutthreshold = REG_FIELD(MIU_DIG_SW_RST, 8, 12);
+
+
+
 #define MIU_DIG_50			0x50
 #define MIU_DIG_ADDR_BAL_SEL		0x58
 #define MIU_DIG_70			0x70
