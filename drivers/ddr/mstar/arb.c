@@ -5,17 +5,21 @@
  *      Author: daniel
  */
 
+#include <common.h>
 #include <chenxingv7.h>
+#include <dm.h>
+#include <regmap.h>
 
 #include "arb.h"
+#include "debug.h"
 
 /* not sure what this does */
 /* in p3 ipl */
-void mstar_arb_mystery(void)
+void mstar_arb_mystery(struct regmap *arb)
 {
-	mstar_writew(0x0000, MIU_ARB + MIU_ARB_C0);
-	mstar_writew(0x0000, MIU_ARB + MIU_ARB_C4);
-	mstar_writew(0x0000, MIU_ARB + MIU_ARB_C8);
-	mstar_writew(0x0030, MIU_ARB + MIU_ARB_CC);
-	mstar_writew(0x5000, MIU_ARB + MIU_ARB_D0);
+	mstar_regmap_write(arb, MIU_ARB_C0, 0x0000);
+	mstar_regmap_write(arb, MIU_ARB_C4, 0x0000);
+	mstar_regmap_write(arb, MIU_ARB_C8, 0x0000);
+	mstar_regmap_write(arb, MIU_ARB_CC, 0x0030);
+	mstar_regmap_write(arb, MIU_ARB_D0, 0x5000);
 }

@@ -1,8 +1,5 @@
 /*
  * arb.h
- *
- *  Created on: 19 Aug 2022
- *      Author: daniel
  */
 
 #ifndef DRIVERS_DDR_MSTAR_ARB_H_
@@ -29,6 +26,6 @@
 #define MIU_ARB_GROUP6_CTRL		0x1c0
 #define MIU_ARB_GROUP6_REQ_MASK	0x1cc
 
-void mstar_arb_mystery(void);
+void mstar_arb_mystery(struct regmap *arb);
 
 #endif /* DRIVERS_DDR_MSTAR_ARB_H_ */
