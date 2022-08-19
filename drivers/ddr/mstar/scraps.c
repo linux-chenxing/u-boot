@@ -1,6 +1,6 @@
 #if 0
 void garbage(){
-	//mstar_writew(0x5000, MIU_EXTRA + MIU_EXTRA_D0);
+	//
 
 
 	// rd phase timing, m5 is 0
@@ -227,6 +227,46 @@ static void mstar_miu_init(void)
 	// back to group 1
 	mstar_writew(0x001d, MIU_DIG + MIU_DIG_GROUP1_CTRL);
 }
+
+#if 0 // mmmm
+static void miu_configure_dram_m5_block()
+{
+	// ps cycle
+	mstar_writew(0x7f, MIU_ANA + MIU_ANA_C4);
+	// dll code
+	mstar_writew(0xf000, MIU_ANA + MIU_ANA_C8);
+	// m5 only?
+	mstar_writew(0x00cb, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00cf, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00cb, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00c3, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00cb, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00c3, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00cb, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00c2, MIU_ANA + MIU_ANA_C0);
+	mstar_writew(0x00c0, MIU_ANA + MIU_ANA_C0);
+	// --
+	mstar_writew(0x33c8, MIU_ANA + MIU_ANA_C0);
+
+	mstar_writew(0x0000, 0x1f2020e0);
+	mstar_writew(0x0000, 0x1f202130);
+	mstar_writew(0x0000, 0x1f202134);
+	mstar_writew(0xf0f3, 0x1f202120);
+	mstar_writew(0x0800, 0x1f2020e0);
+	mstar_writew(0x8000, 0x1f2027bc);
+	mstar_writew(0x8221, 0x1f202458);
+	mstar_writew(0x61a1, 0x1f2025f8);
+	mstar_writew(0x0300, 0x1f202714);
+	mstar_writew(0x80f0, 0x1f202700);
+	mstar_writew(0xc01d, 0x1f202c60);
+	mstar_writew(0xc01d, 0x1f202ce0);
+	mstar_writew(0xc01d, 0x1f202d60);
+	mstar_writew(0xc01d, 0x1f202de0);
+	mstar_writew(0xc01d, 0x1f202e60);
+	mstar_writew(0x001d, 0x1f202ee0);
+	mstar_writew(0x001d, 0x1f202f60);
+}
+#endif
 
 void mstar_the_return_of_miu(void)
 {

@@ -304,10 +304,8 @@ static void mstar_ddr_test(void)
 			failed = true;
 	}
 	if (failed) {
-
 		printf("DRAM test failed!\n");
-		while (1){
-		}
+		while (1) { }
 	}
 
 	printf("DRAM test OK\n");
