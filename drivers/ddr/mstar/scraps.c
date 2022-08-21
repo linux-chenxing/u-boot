@@ -287,3 +287,56 @@ void mstar_the_return_of_miu(void)
 #endif
 }
 
+
+static void miu_ana_mystery(const struct mstar_miu_priv *priv,
+			    const struct ddr_config *config)
+{
+
+#if 0
+	mstar_writew(0x0304, 0x1f202b00);
+	mstar_writew(0x0200, 0x1f202b04);
+	mstar_writew(0x0404, 0x1f202b08);
+	mstar_writew(0x0304, 0x1f202b0c);
+	mstar_writew(0x0201, 0x1f202b10);
+	mstar_writew(0x0101, 0x1f202b14);
+	mstar_writew(0x0101, 0x1f202b18);
+	mstar_writew(0x0303, 0x1f202b1c);
+
+	mstar_writew(0x0, MIU_ANA + MIU_ANA_16C);
+
+	mstar_writew(0x0002, MIU_ANA + MIU_ANA_1B8);
+	mstar_writew(0x0011, MIU_ANA + MIU_ANA_1C0);
+	mstar_writew(0x0000, MIU_ANA + MIU_ANA_1C4);
+	mstar_writew(0x0010, MIU_ANA + MIU_ANA_1C8);
+	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1CC);
+	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D0);
+	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D4);
+	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D8);
+	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1DC);
+	mstar_writew(0x3333, MIU_ANA + MIU_ANA_1E0);
+	mstar_writew(0x0033, MIU_ANA + MIU_ANA_1E4);
+
+
+	mstar_writew(0x0000, 0x1f202a00);
+	mstar_writew(0x0000, 0x1f202a08);
+	mstar_writew(0x0000, 0x1f202a10);
+	mstar_writew(0x0000, 0x1f202a14);
+	mstar_writew(0x0000, 0x1f202a18);
+	mstar_writew(0x0200, 0x1f202a20);
+	mstar_writew(0x0000, 0x1f202a24);
+	mstar_writew(0x0505, 0x1f202a28);
+	mstar_writew(0x0000, 0x1f202a3c);
+	mstar_writew(0x0505, 0x1f202a40);
+	mstar_writew(0x0505, 0x1f202a44);
+	mstar_writew(0x0505, 0x1f202a48);
+	mstar_writew(0x0505, 0x1f202a4c);
+	mstar_writew(0x0505, 0x1f202a50);
+	mstar_writew(0x0505, 0x1f202a54);
+	mstar_writew(0x0505, 0x1f202a58);
+	mstar_writew(0x0505, 0x1f202a5c);
+	mstar_writew(0x0202, 0x1f202ac0);
+	mstar_writew(0x0000, 0x1f202ac4);
+	mstar_writew(0x0808, 0x1f202ac8);
+	mstar_writew(0x0808, 0x1f202acc);
+#endif
+}
