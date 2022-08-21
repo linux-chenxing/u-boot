@@ -6,6 +6,7 @@
 #include <asm/io.h>
 #include <chenxingv7.h>
 
+#include "ana.h"
 #include "arb.h"
 #include "clk.h"
 #include "debug.h"
@@ -38,7 +39,7 @@ struct ddr_config {
 	uint16_t mr0, mr1, mr2, mr3;
 	uint16_t rd_phase_timing;
 	uint16_t ptn_mode;
-	uint16_t ana_5c, ana_d8, ana_dc, ana_ec;
+	uint16_t ana_1c, ana_5c, ana_78, ana_7c, ana_d8, ana_dc, ana_ec;
 	uint16_t ana_120, ana_128;
 	uint16_t ana_148, ana_14c;
 	uint16_t ana_150, ana_154, ana_158, ana_15c;
@@ -223,12 +224,6 @@ static void miu_memory_config(const struct mstar_miu_priv *miu,
 
 	/* protect2 */
 	mstar_regmap_field_write(miu->protect2_start, 0x6000);
-
-	// dgp, probably need to be moved.
-	//mstar_regmap_write(miu->dig, MIU_DIG_ADDR_BAL_SEL, 0x8021);
-	//mstar_regmap_write(miu->dig, MIU_DIG_70, 0x0);
-	//
-
 
 	// timing configuration
 	//mstar_regmap_write(miu->dig, MIU_DIG_TIMING2, 0x9598);
@@ -445,7 +440,10 @@ static void mstar_ddr_fillconfig_ssd210(struct ddr_config *config)
 
 	config->ptn_mode = 0x8020;
 
-	config->ana_5c = 0x2222;
+	config->ana_1c = 0x8f;
+	config->ana_5c = 0x1122;
+	config->ana_78 = 0x9111;
+	config->ana_7c = 0x1111;
 
 	config->ana_d8 = 0x707;
 	config->ana_dc = 0x707;
@@ -453,7 +451,7 @@ static void mstar_ddr_fillconfig_ssd210(struct ddr_config *config)
 	config->ana_ec = 0x707;
 
 	config->ana_120 = 0xf0f3;
-	config->ana_128 = 0x2829;
+	config->ana_128 = 0x1516;
 
 	config->ana_148 = 0;
 	config->ana_14c = 0;
@@ -630,64 +628,165 @@ static inline void miu_unmask_rqs(const struct mstar_miu_priv *priv, const struc
 	mstar_ddr_setrequestmasks(config, workingrequestmasks);
 }
 
-static void miu_ana_mystery(const struct mstar_miu_priv *priv, const struct ddr_config *config)
+static void miu_ana_mystery(const struct mstar_miu_priv *priv,
+			    const struct ddr_config *config)
 {
-	// clock wave form
-	mstar_writew(0xaaaa, MIU_ANA + MIU_ANA_04);
-	mstar_writew(0x0, MIU_ANA + MIU_ANA_08);
-	// more timing
-	mstar_writew(0x85, MIU_ANA + MIU_ANA_1c);
-	// reserved , m5 is 2222
-	mstar_writew(config->ana_5c, MIU_ANA + MIU_ANA_5c);
+	/* clko and dqs wave form - 8x mode */
+	mstar_regmap_write(priv->ana, MIU_ANA_04, 0xaaaa);
+	/* reserved ? */
+	mstar_regmap_write(priv->ana, MIU_ANA_08, 0);
+	/*
+	 * rd phase timing
+	 * m5 = 0, p3 = 0
+	 */
+	mstar_regmap_write(priv->ana, MIU_ANA_RD_PHASE_TIMING, 0);
+	/* dqsm stuff */
+	mstar_regmap_write(priv->ana, MIU_ANA_1c, config->ana_1c);
+	/* reserved? */
+	mstar_regmap_write(priv->ana, MIU_ANA_5c, config->ana_5c);
 
-	mstar_writew(config->ana_128, MIU_ANA + MIU_ANA_128);
+	/* clock phase m5 = 0x77, p3 = 0x77*/
+	mstar_regmap_write(priv->ana, MIU_ANA_70, 0x77);
+	/* clock phase m5 = ??, p3 = 0x7070  */
+	mstar_regmap_write(priv->ana, MIU_ANA_74, 0x7070);
+	/* dqs waveform and skew? */
+	mstar_regmap_write(priv->ana, MIU_ANA_78, config->ana_78);
+	/* skew */
+	mstar_regmap_write(priv->ana, MIU_ANA_7C, config->ana_7c);
+	/* 0x90 */
+	mstar_regmap_write(priv->ana, MIU_ANA_90, 0x77);
+	/* 0x94 */
+	mstar_regmap_write(priv->ana, MIU_ANA_94, 0x7070);
+	/* 0x98 */
+	mstar_regmap_write(priv->ana, MIU_ANA_98, 0x11);
+	/* 0x9c */
+	mstar_regmap_write(priv->ana, MIU_ANA_9C, 0x11);
+	/* 0xa0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_A0, 0x1111);
+	/* 0xa4 */
+	mstar_regmap_write(priv->ana, MIU_ANA_A4, 0x0);
+	/* 0xd8 */
+	mstar_regmap_write(priv->ana, MIU_ANA_D8, 0x808);
+	/* 0xdc */
+	mstar_regmap_write(priv->ana, MIU_ANA_DC, 0x808);
+	/* recv trigger level */
+	mstar_regmap_write(priv->ana, MIU_ANA_E8, 0x404);
+	/* recv trigger level */
+	mstar_regmap_write(priv->ana, MIU_ANA_EC, 0x404);
 
-	mstar_writew(0x0304, 0x1f202b00);
-	mstar_writew(0x0200, 0x1f202b04);
-	mstar_writew(0x0404, 0x1f202b08);
-	mstar_writew(0x0304, 0x1f202b0c);
-	mstar_writew(0x0201, 0x1f202b10);
-	mstar_writew(0x0101, 0x1f202b14);
-	mstar_writew(0x0101, 0x1f202b18);
-	mstar_writew(0x0303, 0x1f202b1c);
+	/* everything after this point is not in the msb2521 datasheet :D */
+	/* 0x128 */
+	mstar_regmap_write(priv->ana, MIU_ANA_128, config->ana_128);
 
-	mstar_writew(0x0, MIU_ANA + MIU_ANA_16C);
+	/* 0x140 */
+	mstar_regmap_write(priv->ana, MIU_ANA_140, 0xbcdc);
+	/* 0x144 */
+	mstar_regmap_write(priv->ana, MIU_ANA_144, 0xcddc);
+	/* 0x148 */
+	mstar_regmap_write(priv->ana, MIU_ANA_148, 0x3232);
+	/* 0x14c */
+	mstar_regmap_write(priv->ana, MIU_ANA_14C, 0x4311);
+	/* 0x150 */
+	mstar_regmap_write(priv->ana, MIU_ANA_150, 0x1111);
+	/* 0x154 */
+	mstar_regmap_write(priv->ana, MIU_ANA_154, 0x1111);
+	/* 0x158 */
+	mstar_regmap_write(priv->ana, MIU_ANA_158, 0x1111);
+	/* 0x15c */
+	mstar_regmap_write(priv->ana, MIU_ANA_15C, 0x1111);
 
-	mstar_writew(0x0002, MIU_ANA + MIU_ANA_1B8);
-	mstar_writew(0x0011, MIU_ANA + MIU_ANA_1C0);
-	mstar_writew(0x0000, MIU_ANA + MIU_ANA_1C4);
-	mstar_writew(0x0010, MIU_ANA + MIU_ANA_1C8);
-	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1CC);
-	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D0);
-	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D4);
-	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1D8);
-	mstar_writew(0x1111, MIU_ANA + MIU_ANA_1DC);
-	mstar_writew(0x3333, MIU_ANA + MIU_ANA_1E0);
-	mstar_writew(0x0033, MIU_ANA + MIU_ANA_1E4);
+	/* 0x16c */
+	mstar_regmap_write(priv->ana, MIU_ANA_16C, 0x0);
 
+	/* 0x170 */
+	mstar_regmap_write(priv->ana, MIU_ANA_170, 0x1111);
+	/* 0x174 */
+	mstar_regmap_write(priv->ana, MIU_ANA_174, 0x111);
+	/* 0x178 */
+	mstar_regmap_write(priv->ana, MIU_ANA_178, 0x111);
+	/* 0x17c */
+	mstar_regmap_write(priv->ana, MIU_ANA_17C, 0x111);
 
-	mstar_writew(0x0000, 0x1f202a00);
-	mstar_writew(0x0000, 0x1f202a08);
-	mstar_writew(0x0000, 0x1f202a10);
-	mstar_writew(0x0000, 0x1f202a14);
-	mstar_writew(0x0000, 0x1f202a18);
-	mstar_writew(0x0200, 0x1f202a20);
-	mstar_writew(0x0000, 0x1f202a24);
-	mstar_writew(0x0505, 0x1f202a28);
-	mstar_writew(0x0000, 0x1f202a3c);
-	mstar_writew(0x0505, 0x1f202a40);
-	mstar_writew(0x0505, 0x1f202a44);
-	mstar_writew(0x0505, 0x1f202a48);
-	mstar_writew(0x0505, 0x1f202a4c);
-	mstar_writew(0x0505, 0x1f202a50);
-	mstar_writew(0x0505, 0x1f202a54);
-	mstar_writew(0x0505, 0x1f202a58);
-	mstar_writew(0x0505, 0x1f202a5c);
-	mstar_writew(0x0202, 0x1f202ac0);
-	mstar_writew(0x0000, 0x1f202ac4);
-	mstar_writew(0x0808, 0x1f202ac8);
-	mstar_writew(0x0808, 0x1f202acc);
+	/* 0x1a0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1A0, 0x4444);
+	/* 0x1a4 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1A4, 0x4444);
+	/* 0x1a8 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1A8, 0x4444);
+	/* 0x1ac */
+	mstar_regmap_write(priv->ana, MIU_ANA_1AC, 0x4444);
+	/* 0x1b0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1B0, 0x44);
+
+	/* 0x1c0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1C0, 0x5555);
+	/* 0x1c4 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1C4, 0x5555);
+	/* 0x1c8 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1C8, 0x5555);
+	/* 0x1cc */
+	mstar_regmap_write(priv->ana, MIU_ANA_1CC, 0x5555);
+	/* 0x1d0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_1D0, 0x55);
+
+	/* 0xc4 */
+	mstar_regmap_write(priv->ana, MIU_ANA_C4, 0x7f);
+
+	/* 0xc8 */
+	mstar_regmap_write(priv->ana, MIU_ANA_C8, 0xf000);
+
+	/* ... 0xc0 sequence, seems the same for m5 too? confirmed for p3 */
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00cb);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00cf);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00cb);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00c3);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00cb);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00c3);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00cb);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00c2);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x00c0);
+	mstar_regmap_write(priv->ana, MIU_ANA_C0, 0x33c8);
+
+	/* 0xe0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_E0, 0x0);
+	/* 0x130 */
+	mstar_regmap_write(priv->ana, MIU_ANA_130, 0x0);
+	/* 0x134 */
+	mstar_regmap_write(priv->ana, MIU_ANA_134, 0x0);
+	/* 0x120 */
+	mstar_regmap_write(priv->ana, MIU_ANA_120, 0xf0f1);
+	/* 0xe0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_E0, 0x800);
+
 }
+
+
+static void miu_ana_mystery1(const struct mstar_miu_priv *priv,
+			    const struct ddr_config *config)
+{
+	/* 0x114 */
+	mstar_regmap_write(priv->ana, MIU_ANA_114, 0x1);
+	/* 0xE0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_E0, 0x800);
+	/* 0xB0 */
+	mstar_regmap_write(priv->ana, MIU_ANA_B0, 0xa0a);
+	/* 0xB4 */
+	mstar_regmap_write(priv->ana, MIU_ANA_B4, 0xaaaa);
+	/* 0xB8 */
+	mstar_regmap_write(priv->ana, MIU_ANA_B8, 0xaaaa);
+	/* 0xBC */
+	mstar_regmap_write(priv->ana, MIU_ANA_BC, 0xaaaa);
+	/* 0x34 */
+	mstar_regmap_write(priv->ana, MIU_ANA_34, 0x8000);
+	/* 0x38 */
+	mstar_regmap_write(priv->ana, MIU_ANA_38, 0x20);
+	/* 0x10 */
+	mstar_regmap_write(priv->ana, MIU_ANA_10, 0x3f);
+	/* 0x3c */
+	mstar_regmap_write(priv->ana, MIU_ANA_3C, 0x5);
+	/* 0x3c */
+	mstar_regmap_write(priv->ana, MIU_ANA_3C, 0xf);
+};
 
 static void miu_configure_dram(const struct mstar_miu_priv *miu)
 {
@@ -724,9 +823,17 @@ static void miu_configure_dram(const struct mstar_miu_priv *miu)
 
 	miu_ana_mystery(miu, &config);
 
+	// dgp, probably need to be moved.
+	mstar_regmap_write(miu->dig, MIU_DIG_ADDR_BAL_SEL, 0x8021);
+	mstar_regmap_write(miu->dig, MIU_DIG_PTN_DATA, 0x951a);
+	//
+
 	miu_configure_rqs(miu, &config);
 
 	mstar_ddr_analogconfig(&config);
+
+	miu_ana_mystery1(miu, &config);
+
 	mstar_ddr_dig_rst_release(dig);
 
 	miu_ana_powerup(miu, &config);
