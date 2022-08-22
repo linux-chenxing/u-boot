@@ -493,56 +493,62 @@ static inline void __write_8(u8 *addr, const u8 *val,
 static inline void __write_16(u16 *addr, const u16 *val,
 			      enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_NATIVE_ENDIAN:
 		writew(*val, addr);
 		break;
-#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le16(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be16(addr, *val);
 		break;
-#endif
 	}
+#else
+	writew(*val, addr);
+#endif
 }
 
 static inline void __write_32(u32 *addr, const u32 *val,
 			      enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_NATIVE_ENDIAN:
 		writel(*val, addr);
 		break;
-#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le32(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be32(addr, *val);
 		break;
-#endif
 	}
+#else
+	writel(*val, addr);
+#endif
 }
 
 #if defined(out_le64) && defined(out_be64) && defined(writeq)
 static inline void __write_64(u64 *addr, const u64 *val,
 			      enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_NATIVE_ENDIAN:
 		writeq(*val, addr);
 		break;
-#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le64(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be64(addr, *val);
 		break;
-#endif
 	}
+#else
+	writeq(*val, addr);
+#endif
 }
 #endif
 
