@@ -428,10 +428,12 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	case REGMAP_SIZE_32:
 		*((u32 *)valp) = __read_32(ptr, map->endianness);
 		break;
+#ifndef CONFIG_SPL_BUILD
 #if defined(in_le64) && defined(in_be64) && defined(readq)
 	case REGMAP_SIZE_64:
 		*((u64 *)valp) = __read_64(ptr, map->endianness);
 		break;
+#endif
 #endif
 	default:
 		debug("%s: regmap size %zu unknown\n", __func__, val_len);
@@ -470,9 +472,11 @@ int regmap_read(struct regmap *map, uint offset, uint *valp)
 	case REGMAP_SIZE_32:
 		*valp = u.v32;
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_64:
 		*valp = u.v64;
 		break;
+#endif
 	default:
 		unreachable();
 	}
@@ -573,10 +577,12 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 	case REGMAP_SIZE_32:
 		__write_32(ptr, val, map->endianness);
 		break;
+#ifndef CONFIG_SPL_BUILD
 #if defined(out_le64) && defined(out_be64) && defined(writeq)
 	case REGMAP_SIZE_64:
 		__write_64(ptr, val, map->endianness);
 		break;
+#endif
 #endif
 	default:
 		debug("%s: regmap size %zu unknown\n", __func__, val_len);
@@ -611,9 +617,11 @@ int regmap_write(struct regmap *map, uint offset, uint val)
 	case REGMAP_SIZE_32:
 		u.v32 = val;
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_64:
 		u.v64 = val;
 		break;
+#endif
 	default:
 		debug("%s: regmap size %zu unknown\n", __func__,
 		      (size_t)map->width);
@@ -683,10 +691,12 @@ struct regmap_field *devm_regmap_field_alloc(struct udevice *dev,
 	return rm_field;
 }
 
+#ifndef CONFIG_SPL_BUILD
 void devm_regmap_field_free(struct udevice *dev, struct regmap_field *field)
 {
 	devm_kfree(dev, field);
 }
+#endif
 
 struct regmap_field *regmap_field_alloc(struct regmap *regmap,
 					struct reg_field reg_field)
