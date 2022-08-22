@@ -32,13 +32,17 @@ struct clk_ops {
 	int (*of_xlate)(struct clk *clock,
 			struct ofnode_phandle_args *args);
 	int (*request)(struct clk *clock);
+#ifndef CONFIG_SPL_BUILD
 	void (*rfree)(struct clk *clock);
+#endif
 	ulong (*round_rate)(struct clk *clk, ulong rate);
 	ulong (*get_rate)(struct clk *clk);
 	ulong (*set_rate)(struct clk *clk, ulong rate);
 	int (*set_parent)(struct clk *clk, struct clk *parent);
 	int (*enable)(struct clk *clk);
+#ifndef CONFIG_SPL_BUILD
 	int (*disable)(struct clk *clk);
+#endif
 };
 
 #if 0 /* For documentation only */
