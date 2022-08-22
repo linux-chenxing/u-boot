@@ -453,8 +453,8 @@ int regmap_uninit(struct regmap *map);
  */
 struct reg_field {
 	unsigned int reg;
-	unsigned int lsb;
-	unsigned int msb;
+	u8 lsb;
+	u8 msb;
 };
 
 struct regmap_field;
