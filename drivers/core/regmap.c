@@ -161,6 +161,7 @@ int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
 	if (ret)
 		goto err;
 
+#ifndef CONFIG_SPL_BUILD
 	if (ofnode_read_bool(node, "little-endian"))
 		map->endianness = REGMAP_LITTLE_ENDIAN;
 	else if (ofnode_read_bool(node, "big-endian"))
@@ -168,6 +169,7 @@ int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
 	else if (ofnode_read_bool(node, "native-endian"))
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 	else /* Default: native endianness */
+#endif
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 
 	*mapp = map;
@@ -193,6 +195,7 @@ int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
 	range->start = r_start;
 	range->size = r_size;
 
+#ifndef CONFIG_SPL_BUILD
 	if (ofnode_read_bool(node, "little-endian"))
 		map->endianness = REGMAP_LITTLE_ENDIAN;
 	else if (ofnode_read_bool(node, "big-endian"))
@@ -200,6 +203,7 @@ int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
 	else if (ofnode_read_bool(node, "native-endian"))
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 	else /* Default: native endianness */
+#endif
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 
 	*mapp = map;
@@ -262,6 +266,7 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 			goto err;
 	}
 
+#ifndef CONFIG_SPL_BUILD
 	if (ofnode_read_bool(node, "little-endian"))
 		map->endianness = REGMAP_LITTLE_ENDIAN;
 	else if (ofnode_read_bool(node, "big-endian"))
@@ -269,6 +274,7 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	else if (ofnode_read_bool(node, "native-endian"))
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 	else /* Default: native endianness */
+#endif
 		map->endianness = REGMAP_NATIVE_ENDIAN;
 
 	*mapp = map;
@@ -343,6 +349,7 @@ static inline u8 __read_8(u8 *addr, enum regmap_endianness_t endianness)
 
 static inline u16 __read_16(u16 *addr, enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_LITTLE_ENDIAN:
 		return in_le16(addr);
@@ -351,12 +358,14 @@ static inline u16 __read_16(u16 *addr, enum regmap_endianness_t endianness)
 	case REGMAP_NATIVE_ENDIAN:
 		return readw(addr);
 	}
+#endif
 
 	return readw(addr);
 }
 
 static inline u32 __read_32(u32 *addr, enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_LITTLE_ENDIAN:
 		return in_le32(addr);
@@ -365,6 +374,7 @@ static inline u32 __read_32(u32 *addr, enum regmap_endianness_t endianness)
 	case REGMAP_NATIVE_ENDIAN:
 		return readl(addr);
 	}
+#endif
 
 	return readl(addr);
 }
@@ -372,6 +382,7 @@ static inline u32 __read_32(u32 *addr, enum regmap_endianness_t endianness)
 #if defined(in_le64) && defined(in_be64) && defined(readq)
 static inline u64 __read_64(u64 *addr, enum regmap_endianness_t endianness)
 {
+#ifndef CONFIG_SPL_BUILD
 	switch (endianness) {
 	case REGMAP_LITTLE_ENDIAN:
 		return in_le64(addr);
@@ -380,6 +391,7 @@ static inline u64 __read_64(u64 *addr, enum regmap_endianness_t endianness)
 	case REGMAP_NATIVE_ENDIAN:
 		return readq(addr);
 	}
+#endif
 
 	return readq(addr);
 }
@@ -481,12 +493,14 @@ static inline void __write_16(u16 *addr, const u16 *val,
 	case REGMAP_NATIVE_ENDIAN:
 		writew(*val, addr);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le16(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be16(addr, *val);
 		break;
+#endif
 	}
 }
 
@@ -497,12 +511,14 @@ static inline void __write_32(u32 *addr, const u32 *val,
 	case REGMAP_NATIVE_ENDIAN:
 		writel(*val, addr);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le32(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be32(addr, *val);
 		break;
+#endif
 	}
 }
 
@@ -514,12 +530,14 @@ static inline void __write_64(u64 *addr, const u64 *val,
 	case REGMAP_NATIVE_ENDIAN:
 		writeq(*val, addr);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_LITTLE_ENDIAN:
 		out_le64(addr, *val);
 		break;
 	case REGMAP_BIG_ENDIAN:
 		out_be64(addr, *val);
 		break;
+#endif
 	}
 }
 #endif

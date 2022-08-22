@@ -60,8 +60,10 @@ enum regmap_size_t {
  */
 enum regmap_endianness_t {
 	REGMAP_NATIVE_ENDIAN,
+#ifndef CONFIG_SPL_BUILD
 	REGMAP_LITTLE_ENDIAN,
 	REGMAP_BIG_ENDIAN,
+#endif
 };
 
 /**
