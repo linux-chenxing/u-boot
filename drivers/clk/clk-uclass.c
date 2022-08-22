@@ -731,6 +731,7 @@ int clk_disable(struct clk *clk) {
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 int clk_disable_bulk(struct clk_bulk *bulk)
 {
 	int i, ret;
@@ -743,6 +744,12 @@ int clk_disable_bulk(struct clk_bulk *bulk)
 
 	return 0;
 }
+#else
+int clk_disable_bulk(struct clk_bulk *bulk)
+{
+	return 0;
+}
+#endif
 
 int clk_get_by_id(ulong id, struct clk **clkp)
 {
@@ -783,10 +790,16 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 	return false;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void devm_clk_release(struct udevice *dev, void *res)
 {
 	clk_free(res);
 }
+#else
+static void devm_clk_release(struct udevice *dev, void *res) {
+
+}
+#endif
 
 static int devm_clk_match(struct udevice *dev, void *res, void *data)
 {
