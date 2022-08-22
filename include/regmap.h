@@ -48,7 +48,9 @@ enum regmap_size_t {
 	REGMAP_SIZE_8 = 1,
 	REGMAP_SIZE_16 = 2,
 	REGMAP_SIZE_32 = 4,
+#ifndef CONFIG_SPL_BUILD
 	REGMAP_SIZE_64 = 8,
+#endif
 };
 
 /**
