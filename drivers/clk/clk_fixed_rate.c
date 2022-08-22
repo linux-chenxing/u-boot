@@ -29,7 +29,9 @@ static int dummy_enable(struct clk *clk)
 const struct clk_ops clk_fixed_rate_ops = {
 	.get_rate = clk_fixed_rate_get_rate,
 	.enable = dummy_enable,
+#ifndef CONFIG_SPL_BUILD
 	.disable = dummy_enable,
+#endif
 };
 
 void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,

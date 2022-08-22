@@ -414,6 +414,7 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return clk_get_by_index_nodev(node, index, clk);
 }
 
+#ifndef CONFIG_SPL_BUILD
 int clk_release_all(struct clk *clk, int count)
 {
 	int i, ret;
@@ -434,6 +435,12 @@ int clk_release_all(struct clk *clk, int count)
 
 	return 0;
 }
+#else
+int clk_release_all(struct clk *clk, int count)
+{
+	return 0;
+}
+#endif
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {
@@ -452,6 +459,7 @@ int clk_request(struct udevice *dev, struct clk *clk)
 	return ops->request(clk);
 }
 
+#ifndef CONFIG_SPL_BUILD
 void clk_free(struct clk *clk)
 {
 	const struct clk_ops *ops;
@@ -465,6 +473,11 @@ void clk_free(struct clk *clk)
 		ops->rfree(clk);
 	return;
 }
+#else
+void clk_free(struct clk *clk)
+{
+}
+#endif
 
 ulong clk_get_rate(struct clk *clk)
 {
@@ -661,6 +674,7 @@ int clk_enable_bulk(struct clk_bulk *bulk)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int clk_disable(struct clk *clk)
 {
 	const struct clk_ops *ops;
@@ -711,6 +725,11 @@ int clk_disable(struct clk *clk)
 
 	return 0;
 }
+#else
+int clk_disable(struct clk *clk) {
+	return 0;
+}
+#endif
 
 int clk_disable_bulk(struct clk_bulk *bulk)
 {
