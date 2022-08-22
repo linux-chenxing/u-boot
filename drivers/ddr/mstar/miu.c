@@ -10,6 +10,7 @@
 #include "arb.h"
 #include "clk.h"
 #include "debug.h"
+#include "dig.h"
 #include "miu.h"
 #include "mmu.h"
 
@@ -471,7 +472,7 @@ static int mstar_ddr_getconfig(int chiptype, struct ddr_config *config)
 {
 	memset(config, 0, sizeof(*config));
 
-	printf("trying to work out DDR config..\n");
+	debug("trying to work out DDR config..\n");
 
 	switch(chiptype){
 	case CHIPTYPE_MSC313E:
@@ -847,10 +848,7 @@ static void miu_configure_dram(const struct mstar_miu_priv *miu)
 	mstar_writew(0x200, 0x1f2025ac);
 	mstar_writew(0x000, 0x1f2025e0);
 
-	printf("-----\n");
-
 	mstar_delay(1000);
-
 
 	miu_unmask_rqs(miu, &config);
 
@@ -893,12 +891,45 @@ static ulong mstar_miu_ddrpll_recalc_rate(struct mstar_miu_priv *miu, unsigned l
 	return freq;
 }
 
-static int mstar_miu_probe(struct udevice *dev)
+static void mstar_miu_dump(struct mstar_miu_priv *priv)
 {
-	struct mstar_miu_priv *priv = dev_get_priv(dev);
+#ifdef CONFIG_MSTAR_MIU_DEBUG
 	ulong miupllrate, ddrpllrate;
 	unsigned int memtype, buswidth, banks, cols;
 	unsigned int trcd, trp, tras, trcdmsb, trpmsb;
+
+	miupllrate = clk_get_rate(&priv->miupll);
+	ddrpllrate = mstar_miu_ddrpll_recalc_rate(priv, miupllrate);
+	printk("MIUPLL running at %uMHz\n", (unsigned int)(miupllrate/1000000));
+	printk("DDRPLL running at %uMHz\n", (unsigned int)(ddrpllrate/1000000));
+
+	regmap_field_read(priv->memtype, &memtype);
+	regmap_field_read(priv->buswidth, &buswidth);
+	regmap_field_read(priv->banks, &banks);
+	regmap_field_read(priv->cols, &cols);
+
+	buswidth += 1;
+	buswidth *= 16;
+	banks = 2 << banks;
+	cols += 8;
+
+	printk("Memory config: type %s, buswidth %d bits, banks %d, cols %d\n",
+			miumemtypetbl[memtype], buswidth, banks, cols);
+
+	regmap_field_read(priv->trcd, &trcd);
+	regmap_field_read(priv->trp, &trp);
+	regmap_field_read(priv->tras, &tras);
+	regmap_field_read(priv->trcdmsb, &trcdmsb);
+	regmap_field_read(priv->trpmsb, &trpmsb);
+
+	printk("Timing: trcd %x, trp %x, tras %x, trcdmsb %x, trpmsb %x\n",
+			trcd, trp, tras, trcdmsb, trpmsb);
+#endif
+}
+
+static int mstar_miu_probe(struct udevice *dev)
+{
+	struct mstar_miu_priv *priv = dev_get_priv(dev);
 	int ret;
 
 	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->ana, 0);
@@ -978,32 +1009,7 @@ static int mstar_miu_probe(struct udevice *dev)
 
 	miu_configure_dram(priv);
 
-	miupllrate = clk_get_rate(&priv->miupll);
-	ddrpllrate = mstar_miu_ddrpll_recalc_rate(priv, miupllrate);
-	printk("MIUPLL running at %uMHz\n", (unsigned int)(miupllrate/1000000));
-	printk("DDRPLL running at %uMHz\n", (unsigned int)(ddrpllrate/1000000));
-
-	regmap_field_read(priv->memtype, &memtype);
-	regmap_field_read(priv->buswidth, &buswidth);
-	regmap_field_read(priv->banks, &banks);
-	regmap_field_read(priv->cols, &cols);
-
-	buswidth += 1;
-	buswidth *= 16;
-	banks = 2 << banks;
-	cols += 8;
-
-	printk("Memory config: type %s, buswidth %d bits, banks %d, cols %d\n",
-			miumemtypetbl[memtype], buswidth, banks, cols);
-
-	regmap_field_read(priv->trcd, &trcd);
-	regmap_field_read(priv->trp, &trp);
-	regmap_field_read(priv->tras, &tras);
-	regmap_field_read(priv->trcdmsb, &trcdmsb);
-	regmap_field_read(priv->trpmsb, &trpmsb);
-
-	printk("Timing: trcd %x, trp %x, tras %x, trcdmsb %x, trpmsb %x\n",
-			trcd, trp, tras, trcdmsb, trpmsb);
+	mstar_miu_dump(priv);
 
 #if 0
 	printk("clk gen dump\n");

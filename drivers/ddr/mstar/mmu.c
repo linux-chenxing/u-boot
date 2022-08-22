@@ -5,6 +5,7 @@
 #include <chenxingv7.h>
 #include "mmu.h"
 
+#ifdef CONFIG_MSTAR_MIU_DEBUG
 static void mstar_mmu_dump(void) {
 	printk("mmu dump\n");
 	for (int i = 0; i < 0x200; i += 4){
@@ -13,6 +14,10 @@ static void mstar_mmu_dump(void) {
 
 	}
 }
+#else
+static void mstar_mmu_dump(void) {
+}
+#endif
 
 int mstar_mmu_init(void) {
 	mstar_mmu_dump();

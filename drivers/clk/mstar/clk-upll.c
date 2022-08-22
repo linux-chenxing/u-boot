@@ -52,7 +52,7 @@ static int mstar_upll_probe(struct udevice *dev)
 {
 	struct mstar_upll_priv *priv = dev_get_priv(dev);
 	int ret;
-	struct regmap regmap;
+	struct regmap *regmap;
 
 	ret = regmap_init_mem_index(dev_ofnode(dev), &regmap, 0);
 	if(ret)
@@ -68,7 +68,7 @@ static int mstar_upll_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->pd = devm_regmap_field_alloc(dev, &regmap, pd_field);
+	priv->pd = devm_regmap_field_alloc(dev, regmap, pd_field);
 
 out:
 	return ret;

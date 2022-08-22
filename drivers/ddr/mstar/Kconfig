@@ -1,0 +1,11 @@
+menu "MStar/SigmaStar DDR controller"
+	depends on ARCH_MSTARV7
+
+config MSTAR_MIU
+	bool "MStar/SigmaStar MIU DDR controller"
+	
+config MSTAR_MIU_DEBUG
+	bool "Output lots of debug info when setting up DRAM"
+	depends on MSTAR_MIU
+
+endmenu

@@ -23,8 +23,6 @@
 #define MIU_ANA_50			0x50
 #define MIU_ANA_58			0x58
 #define MIU_ANA_5c			0x5c
-//#define MIU_ANA_60			0x60
-//#define MIU_ANA_64			0x64
 #define REG_ANA_DDFSET_L		0x60
 #define REG_ANA_DDFSET_H		0x64
 #define MIU_ANA_68			0x68

@@ -134,6 +134,9 @@ void mstar_clockfixup(void)
 {
 	// once the DDR is running the deglitch clock doesn't work anymore.
 	writew_relaxed(0x10, CLKGEN + CLKGEN_BDMA);
+
+	/* Fix MCU clk so the ISP clock isn't turtle */
+	writew_relaxed(0x30, CLKGEN + CLKGEN_MCU);
 }
 
 #ifndef CONFIG_SPL_BUILD
@@ -197,7 +200,7 @@ void mstar_check_ipl(void)
 	if(ipl->chksum != chksum)
 		printf("IPL image is broken\n");
 	else
-		printf("IPL image seems OK\n");
+		debug("IPL image seems OK\n");
 }
 
 void mstar_poweron_reason(void)
@@ -219,7 +222,7 @@ int mstar_cpupll_init(void)
 	int rv;
 	struct clk clk;
 
-	printf("Setting up CPUPLL\n");
+	debug("Setting up CPUPLL\n");
 
 	rv = uclass_get_device_by_name(UCLASS_CLK, "cpupll@206400",
 			&dev);
@@ -229,7 +232,7 @@ int mstar_cpupll_init(void)
 	clk.dev = dev;
 	clk_enable(&clk);
 
-	printf("CPUPLL running at %dMHz\n", (unsigned int) (clk_get_rate(&clk) / 1000000));
+	debug("CPUPLL running at %dMHz\n", (unsigned int) (clk_get_rate(&clk) / 1000000));
 
 	return rv;
 }
@@ -297,10 +300,11 @@ static void mstar_ddr_test(void)
 {
 	bool failed = false;
 
-	printf("Testing DRAM...\n");
+	debug("Testing DRAM...\n");
 
 	for (int i = 0; i < 0x10; i++) {
-		if (mstar_writereadback_l(0xAAAA5555, MSTAR_DRAM + (i * 4)) != 0xAAAA5555)
+		const u32 val = 0xAAAA5555;
+		if (mstar_writereadback_l(val, MSTAR_DRAM + (i * 4)) != val)
 			failed = true;
 	}
 	if (failed) {
@@ -308,7 +312,7 @@ static void mstar_ddr_test(void)
 		while (1) { }
 	}
 
-	printf("DRAM test OK\n");
+	debug("DRAM test OK\n");
 }
 
 static inline int mstar_clock_init(void)
@@ -331,14 +335,17 @@ int mstar_dram_init(void)
 	struct udevice *dev;
 	int rv;
 
-	printf("Doing DRAM setup...\n");
+	debug("Doing DRAM setup...\n");
 
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (rv)
-		debug("DRAM setup failed failed: %d\n", rv);
+	if (rv) {
+		printf("DRAM setup failed failed: %d\n", rv);
+		goto out;
+	}
 
-	printf("DRAM setup OK!\n");
+	debug("DRAM setup OK!\n");
 
+out:
 	return rv;
 }
 

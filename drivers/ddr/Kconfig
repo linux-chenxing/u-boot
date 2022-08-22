@@ -32,3 +32,4 @@ config DDR_SPD
 
 source "drivers/ddr/altera/Kconfig"
 source "drivers/ddr/imx/Kconfig"
+source "drivers/ddr/mstar/Kconfig"

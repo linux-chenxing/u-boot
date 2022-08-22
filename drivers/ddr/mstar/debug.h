@@ -8,8 +8,9 @@
 #ifndef DRIVERS_DDR_MSTAR_DEBUG_H_
 #define DRIVERS_DDR_MSTAR_DEBUG_H_
 
-static int mstar_regmap_write(struct regmap *map, uint offset, uint val)
+static inline int mstar_regmap_write(struct regmap *map, uint offset, uint val)
 {
+#ifdef CONFIG_MSTAR_MIU_DEBUG
 	int ret;
 	uint original, readback;
 
@@ -27,8 +28,12 @@ static int mstar_regmap_write(struct regmap *map, uint offset, uint val)
 		printf("regmap write wanted 0x%08x, got 0x%08x\n", val, readback);
 
 	return ret;
+#else
+	return regmap_write(map, offset, val);
+#endif
 }
 
+#ifdef CONFIG_MSTAR_MIU_DEBUG
 struct regmap_field {
 	struct regmap *regmap;
 	unsigned int mask;
@@ -55,5 +60,11 @@ static int mstar_regmap_field_write(struct regmap_field *field, unsigned int val
 
 	return ret;
 }
+#else
+static inline int mstar_regmap_field_write(struct regmap_field *field, unsigned int val)
+{
+	return regmap_field_write(field, val);
+}
+#endif
 
 #endif /* DRIVERS_DDR_MSTAR_DEBUG_H_ */
