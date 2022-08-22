@@ -122,10 +122,12 @@ static int mstar_cpupll_enable(struct clk *clk)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int mstar_cpupll_disable(struct clk *clk)
 {
 	return 0;
 }
+#endif
 
 static const struct clk_ops mstar_cpupll_ops = {
 	.enable = mstar_cpupll_enable,
