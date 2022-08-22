@@ -28,13 +28,21 @@
 #define COMPAT_P3_SSD210	"sstar-pioneer3-ssd210"
 #define COMPAT_GENERIC		"mstar-v7"
 
+//#define MSTAR_DEBUG
+
 static inline uint16_t mstar_writew(uint16_t value, uint32_t addr)
 {
-	uint16_t pre = readw(addr);
+#ifdef MSTAR_DEBUG
+	uint16_t pre = readw(addr)
+#endif
 	uint16_t post;
+
 	writew(value, addr);
 	post = readw(addr);
+#ifdef MSTAR_DEBUG
 	printf("wrote %08x <- %04x was %04x, readback %04x\n", addr,value, pre, post);
+#endif
+
 	return post;
 }
 
@@ -42,13 +50,18 @@ static inline uint32_t mstar_writereadback_l(uint32_t value, uint32_t addr)
 {
 	uint32_t pre, post;
 
+#ifdef MSTAR_DEBUG
 	printf("Writing 0x%08x to 0x%08x -- ", value, addr);
+#endif
 	pre = readl(addr);
+#ifdef MSTAR_DEBUG
 	printf("Was: 0x%08x ", pre);
+#endif
 	writel(value, addr);
 	post = readl(addr);
+#ifdef MSTAR_DEBUG
 	printf("Read back: 0x%08x\n", post);
-
+#endif
 	return post;
 }
 
@@ -72,7 +85,9 @@ static inline void mstar_dump_reg_block(const char* what, uint32_t start){
 
 static inline void mstar_delay(unsigned long msec)
 {
+#ifdef MSTAR_DEBUG
 	printf("delaying for %lu\n", msec);
+#endif
 	mdelay(msec);
 }
 
@@ -125,6 +140,7 @@ static inline void mstar_delay(unsigned long msec)
 #define L3BRIDGE_STATUS_DONE		BIT(12)
 
 #define CLKGEN				0x1f207000
+#define CLKGEN_MCU			0x04
 #define CLKGEN_MIU			0x5c
 #define CLKGEN_MIU_BOOT			0x80
 #define CLKGEN_BDMA			0x180
@@ -152,25 +168,32 @@ static inline void mstar_delay(unsigned long msec)
 
 
 
-static const uint8_t* deviceid = (uint8_t*) CHIPID;
 static const void* efuse = (void*) EFUSE;
+static const uint8_t* deviceid = (uint8_t*) CHIPID;
 
-static inline int mstar_chiptype(void){
+static inline int mstar_chiptype(void) {
 	uint16_t tmp;
 
 	debug("deviceid is %02x\n", (unsigned) *deviceid);
-	switch(*deviceid){
+	switch(*deviceid) {
+#ifdef CONFIG_MSTAR_INFINITY
 		case CHIPID_MSC313:
 			return CHIPTYPE_MSC313;
+#endif
+#ifdef CONFIG_MSTAR_INFINITY3
 		case CHIPID_MSC313ED:
 			if(*(uint16_t*)(efuse + 0x14) == 0x440)
 				return CHIPTYPE_MSC313DC;
 			else
 				return CHIPTYPE_MSC313E;
+#endif
+#ifdef CONFIG_MSTAR_MERCURY5
 		case CHIPID_SSC8336:
 			return CHIPTYPE_SSC8336;
 		case CHIPID_SSC8336N:
 			return CHIPTYPE_SSC8336N;
+#endif
+#ifdef CONFIG_MSTAR_INFINITY2M
 		case CHIPID_SSD20XD:
 			tmp = readw(PINCTRL + PINCTRL_120);
 			switch(tmp){
@@ -182,8 +205,11 @@ static inline int mstar_chiptype(void){
 				break;
 			}
 			break;
+#endif
+#ifdef CONFIG_MSTAR_PIONEER3
 		case CHIPID_SSD210:
 			return CHIPTYPE_SSD210;
+#endif
 		default:
 			break;
 	}

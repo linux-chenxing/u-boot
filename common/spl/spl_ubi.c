@@ -94,6 +94,10 @@ out:
 	return ret;
 }
 /* Use priorty 0 so that Ubi will override NAND and ONENAND methods */
+#ifdef CONFIG_SPL_NAND_SUPPORT
 SPL_LOAD_IMAGE_METHOD("NAND", 0, BOOT_DEVICE_NAND, spl_ubi_load_image);
+#endif
+#ifdef CONFIG_SPL_ONENAND_SUPPORT
 SPL_LOAD_IMAGE_METHOD("OneNAND", 0, BOOT_DEVICE_ONENAND, spl_ubi_load_image);
+#endif
 SPL_LOAD_IMAGE_METHOD("SPI NAND(UBI)", 0, BOOT_DEVICE_SPINAND, spl_ubi_load_image);

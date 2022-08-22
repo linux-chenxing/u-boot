@@ -83,31 +83,45 @@ config MSTARV7_COMMON
 	select SPL_YMODEM_SUPPORT
 	select SPL_STACK_R
 	select SPL_OPTIMIZE_INLINING
+	select MSTAR_MIU
 
-config MSTARV7_SPIBOOT
+config MSTARV7_SPI_UBOOT
 	bool
 	select DM_SPI
 	select SPI
+	select MSTAR_MSC313SPINOR
+
+config MSTARV7_SPIBOOT
+	bool
+	select MSTARV7_SPI_UBOOT
 	select SPL_DM_SPI
 	select SPL_SPI
 	select SPL_LEGACY_IMAGE_CRC_CHECK
-	select MSTAR_MSC313SPINOR
 
-config MSTARV7_SPINAND
+config MSTARV7_SPINAND_UBOOT
 	bool
-	select MSTARV7_SPIBOOT
+	select MSTARV7_SPI_UBOOT
 	select CMD_UBI
 	select CMD_MTD
 	select CMD_MTDPARTS
 	select DM_MTD
-	select SPL_UBI
-	select SPL_SPI_NAND_SUPPORT
-	select SPL_MTD_SUPPORT
 	select MTD
 	select MTD_UBI
 	select MTD_UBI_FASTMAP
 	select MTD_SPI_NAND
 	select ENV_IS_IN_UBI
+
+config MSTARV7_SPINAND_SPL
+	bool
+	select SPL_UBI
+	select SPL_SPI_NAND_SUPPORT
+	select SPL_MTD_SUPPORT
+
+config MSTARV7_SPINAND
+	bool
+	select MSTARV7_SPIBOOT
+	select MSTARV7_SPINAND_UBOOT
+	select MSTARV7_SPINAND_SPL
 
 choice
      prompt "Board type"
@@ -200,7 +214,8 @@ if MSTAR_PIONEER3
 config TARGET_PREDITA
 	bool "Predita"
 	select MSTARV7_COMMON
-#	select MSTARV7_SPINAND
+	#select MSTARV7_SPINAND
+	select MSTARV7_SPINAND_UBOOT
 	select PINCTRL
 	select PINCTRL_MSTAR
 endif

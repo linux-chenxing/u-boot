@@ -117,7 +117,9 @@ static int mstar_mpll_disable(struct clk *clk)
 static const struct clk_ops mstar_mpll_ops = {
 	.get_rate = mstar_mpll_get_rate,
 	.enable = mstar_mpll_enable,
+#ifndef CONFIG_SPL_BUILD
 	.disable = mstar_mpll_disable,
+#endif
 };
 
 uint mpll_registers[5] = { 0 };

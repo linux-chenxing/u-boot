@@ -18,7 +18,6 @@
 
 #define MAYBEPLL1_10			0x10
 
-
 struct mstar_miupll_magicnumbers {
 	u16 pll_magic_08, pll_magic_0c, pll_magic_10;
 };
@@ -78,7 +77,9 @@ static const struct clk_ops mstar_miupll_ops = {
 	.get_rate = mstar_miupll_get_rate,
 	.set_rate = mstar_miupll_set_rate,
 	.enable = mstar_miupll_enable,
+#ifndef CONFIG_SPL_BUILD
 	.disable = mstar_miupll_disable,
+#endif
 };
 
 static int mstar_miupll_probe(struct udevice *dev)

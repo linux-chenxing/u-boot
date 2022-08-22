@@ -77,8 +77,10 @@ static int mstar_clkgen_mux_disable(struct clk *clk)
 const struct clk_ops mstar_clkgen_mux_ops = {
 	.set_parent = mstar_clkgen_set_parent,
 	.enable = mstar_clkgen_mux_enable,
-	.disable = mstar_clkgen_mux_disable,
 	.get_rate = mstar_clkgen_mux_get_rate,
+#ifndef CONFIG_SPL_BUILD
+	.disable = mstar_clkgen_mux_disable,
+#endif
 };
 
 #define CLKGEN_UART_UART0MUX_MASK	(BIT(3) | BIT(2))

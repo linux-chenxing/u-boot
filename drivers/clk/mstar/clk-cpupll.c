@@ -47,8 +47,9 @@ static ulong mstar_cpupll_getrate(struct clk *clk)
 	mstar_writew(0x0000, 0x1f203dc0);
 	mstar_writew(0x8000, 0x1f203dc0);
 
-	mstar_delay(100);
-
+	printf("0\n");
+	mstar_delay(1000);
+	printf("x\n");
 	readback = readw(0x1f203dc4);
 
 	//printf("CPU frequency: %04x\n", readback);
@@ -84,7 +85,7 @@ void mstar_bump_cpufreq(void)
 	mstar_writew(1, CPUPLL + CPUPLL_LPF_TOGGLE);
 
 	while (!(readw(CPUPLL + CPUPLL_LPF_LOCK))) {
-		printf("waiting for cpupll lock\n");
+		debug("waiting for cpupll lock\n");
 	}
 
 	//mstar_cpu_clk_readback();
@@ -128,8 +129,10 @@ static int mstar_cpupll_disable(struct clk *clk)
 
 static const struct clk_ops mstar_cpupll_ops = {
 	.enable = mstar_cpupll_enable,
-	.disable = mstar_cpupll_disable,
 	.get_rate = mstar_cpupll_getrate,
+#ifndef CONFIG_SPL_BUILD
+	.disable = mstar_cpupll_disable,
+#endif
 };
 
 static int mstar_cpupll_probe(struct udevice *dev)
