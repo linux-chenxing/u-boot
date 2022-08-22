@@ -76,14 +76,23 @@ config MSTAR_MERCURY5
 config MSTAR_PIONEER3
 	bool "pioneer3 family"
 
-config MSTARV7_COMMON
+# Should select the bare minimum that is needed for anything to happen
+config MSTARV7_BASE
 	bool
 	select MULTI_DTB_FIT
 #	select FDT_FIXUP_PARTITIONS
-	select SPL_YMODEM_SUPPORT
 	select SPL_STACK_R
 	select SPL_OPTIMIZE_INLINING
 	select MSTAR_MIU
+	# Options to keep the SPL size down
+	select SPL_SYS_ICACHE_OFF
+	select SPL_SYS_DCACHE_OFF
+
+# Should be selected by everyone but p3
+config MSTARV7_COMMON
+	bool
+	select MSTARV7_BASE
+	select SPL_YMODEM_SUPPORT
 
 config MSTARV7_SPI_UBOOT
 	bool
@@ -116,6 +125,7 @@ config MSTARV7_SPINAND_SPL
 	select SPL_UBI
 	select SPL_SPI_NAND_SUPPORT
 	select SPL_MTD_SUPPORT
+	select UBI_SPL_SILENCE_MSG
 
 config MSTARV7_SPINAND
 	bool
@@ -215,7 +225,7 @@ config TARGET_PREDITA
 	bool "Predita"
 	select MSTARV7_COMMON
 	#select MSTARV7_SPINAND
-	select MSTARV7_SPINAND_UBOOT
+	#select MSTARV7_SPINAND_UBOOT
 	select PINCTRL
 	select PINCTRL_MSTAR
 endif

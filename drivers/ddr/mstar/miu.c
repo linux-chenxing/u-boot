@@ -579,11 +579,11 @@ static int mstar_ddr_getconfig(int chiptype, struct ddr_config *config)
 		break;
 #endif
 	default:
-		printf("Don't know how to find DRAM config for chiptype %i\n", chiptype);
+		debug("Don't know how to find DRAM config for chiptype %i\n", chiptype);
 		return -EINVAL;
 	}
 
-	printf("Detected DRAM: %08x bytes\n", config->size);
+	debug("Detected DRAM: %08x bytes\n", config->size);
 
 	return 0;
 }
@@ -1042,9 +1042,18 @@ static const struct ram_ops mstar_miu_ops = {
 };
 
 static const struct udevice_id mstar_miu_ids[] = {
+//#ifdef MSTAR_INFINITY1
 	{ .compatible = "mstar,msc313-miu" },
+//#endif
+#ifdef CONFIG_MSTAR_INFINITY3
+	{ .compatible = "mstar,msc313e-miu" },
+#endif
+#ifdef CONFIG_MSTAR_MERCURY5
 	{ .compatible = "mstar,ssc8336-miu" },
+#endif
+#ifdef CONFIG_MSTAR_PIONEER3
 	{ .compatible = "sstar,ssd210-miu" },
+#endif
 	{ /* sentinel */ }
 };
 
