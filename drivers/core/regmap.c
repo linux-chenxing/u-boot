@@ -419,12 +419,16 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
 
 	switch (val_len) {
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_8:
 		*((u8 *)valp) = __read_8(ptr, map->endianness);
 		break;
+#endif
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_16:
 		*((u16 *)valp) = __read_16(ptr, map->endianness);
 		break;
+#endif
 	case REGMAP_SIZE_32:
 		*((u32 *)valp) = __read_32(ptr, map->endianness);
 		break;
@@ -463,12 +467,16 @@ int regmap_read(struct regmap *map, uint offset, uint *valp)
 		return res;
 
 	switch (map->width) {
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_8:
 		*valp = u.v8;
 		break;
+#endif
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_16:
 		*valp = u.v16;
 		break;
+#endif
 	case REGMAP_SIZE_32:
 		*valp = u.v32;
 		break;
@@ -574,12 +582,16 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
 
 	switch (val_len) {
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_8:
 		__write_8(ptr, val, map->endianness);
 		break;
+#endif
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_16:
 		__write_16(ptr, val, map->endianness);
 		break;
+#endif
 	case REGMAP_SIZE_32:
 		__write_32(ptr, val, map->endianness);
 		break;
@@ -614,12 +626,16 @@ int regmap_write(struct regmap *map, uint offset, uint val)
 	} u;
 
 	switch (map->width) {
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_8:
 		u.v8 = val;
 		break;
+#endif
+#ifndef CONFIG_SPL_BUILD
 	case REGMAP_SIZE_16:
 		u.v16 = val;
 		break;
+#endif
 	case REGMAP_SIZE_32:
 		u.v32 = val;
 		break;
@@ -651,7 +667,7 @@ int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val)
 	return regmap_write(map, offset, reg | (val & mask));
 }
 
-int regmap_field_read(struct regmap_field *field, unsigned int *val)
+int regmap_field_read(const struct regmap_field *field, unsigned int *val)
 {
 	int ret;
 	unsigned int reg_val;
@@ -667,7 +683,7 @@ int regmap_field_read(struct regmap_field *field, unsigned int *val)
 	return ret;
 }
 
-int regmap_field_write(struct regmap_field *field, unsigned int val)
+int regmap_field_write(const struct regmap_field *field, unsigned int val)
 {
 	return regmap_update_bits(field->regmap, field->reg, field->mask,
 				  val << field->shift);
