@@ -53,27 +53,27 @@ struct mstar_miu_priv {
 	struct clk	miupll;
 
 	/* ctrl */
-	struct regmap_field *odt;
+	const struct regmap_field *odt;
 	/* config 1 */
-	struct regmap_field *memtype, *buswidth, *banks, *cols,
+	const struct regmap_field *memtype, *buswidth, *banks, *cols,
 		*data_ratio, *data_swap, *cke_oenz, *adr_oenz, *dq_oenz,
 		*cko_oenz;
 	/* config 2 */
-	struct regmap_field *rdtiming, *tdqss, *i64mode, *mcpen, *mcptype;
+	const struct regmap_field *rdtiming, *tdqss, *i64mode, *mcpen, *mcptype;
 	/* config 3 */
-	struct regmap_field *trefperiod, *tcke, *i32mode, *ckealwayson,
+	const struct regmap_field *trefperiod, *tcke, *i32mode, *ckealwayson,
 		*odtalwayson, *mobiledram, *scrambleen;
 	/* config 4 */
-	struct regmap_field *trp, *trcd, *tras, *trcdmsb, *trpmsb;
+	const struct regmap_field *trp, *trcd, *tras, *trcdmsb, *trpmsb;
 
-	struct regmap_field *twr, *twl, *twtr, *trtw;
-	struct regmap_field *trfc, *txp, *tccd;
+	const struct regmap_field *twr, *twl, *twtr, *trtw;
+	const struct regmap_field *trfc, *txp, *tccd;
 
 	/* mode registers */
-	struct regmap_field *mr0, *mr1, *mr2, *mr3, *mrx;
+	const struct regmap_field *mr0, *mr1, *mr2, *mr3, *mrx;
 
 	/* protect2 registers */
-	struct regmap_field *protect2_start;
+	const struct regmap_field *protect2_start;
 };
 
 /* -- confirmed in SSD210 ipl code -- */

@@ -24,8 +24,6 @@ config ENV_UBI_PART
 config ENV_UBI_VOLUME
 	default "env"
 
-config SPL_UBI
-        default y
 config SPL_UBI_MAX_VOL_LEBS
         default 256
 config SPL_UBI_MAX_PEB_SIZE

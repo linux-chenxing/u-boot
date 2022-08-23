@@ -490,10 +490,12 @@ static int spinand_reset_op(struct spinand_device *spinand)
 	return spinand_wait(spinand, NULL);
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int spinand_lock_block(struct spinand_device *spinand, u8 lock)
 {
 	return spinand_write_reg_op(spinand, REG_BLOCK_LOCK, lock);
 }
+#endif
 
 static int spinand_check_ecc_status(struct spinand_device *spinand, u8 status)
 {
@@ -1124,6 +1126,7 @@ static int spinand_init(struct spinand_device *spinand)
 		goto err_free_bufs;
 	}
 
+#ifndef CONFIG_SPL_BUILD
 	/* After power up, all blocks are locked, so unlock them here. */
 	for (i = 0; i < nand->memorg.ntargets; i++) {
 		ret = spinand_select_target(spinand, i);
@@ -1134,6 +1137,7 @@ static int spinand_init(struct spinand_device *spinand)
 		if (ret)
 			goto err_free_bufs;
 	}
+#endif
 
 	ret = nanddev_init(nand, &spinand_ops, THIS_MODULE);
 	if (ret)
@@ -1177,6 +1181,7 @@ err_free_bufs:
 	return ret;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void spinand_cleanup(struct spinand_device *spinand)
 {
 	struct nand_device *nand = spinand_to_nand(spinand);
@@ -1186,6 +1191,12 @@ static void spinand_cleanup(struct spinand_device *spinand)
 	kfree(spinand->databuf);
 	kfree(spinand->scratchbuf);
 }
+#else
+static void spinand_cleanup(struct spinand_device *spinand)
+{
+
+}
+#endif
 
 static int spinand_probe(struct udevice *dev)
 {

@@ -45,8 +45,12 @@
  * @REGMAP_SIZE_64: 64-bit read/write access size
  */
 enum regmap_size_t {
+#ifndef CONFIG_SPL_BUILD
 	REGMAP_SIZE_8 = 1,
+#endif
+#ifndef CONFIG_SPL_BUILD
 	REGMAP_SIZE_16 = 2,
+#endif
 	REGMAP_SIZE_32 = 4,
 #ifndef CONFIG_SPL_BUILD
 	REGMAP_SIZE_64 = 8,
@@ -520,7 +524,7 @@ void devm_regmap_field_free(struct udevice *dev, struct regmap_field *field);
  *
  * Return: 0 if OK, -ve on error
  */
-int regmap_field_write(struct regmap_field *field, unsigned int val);
+int regmap_field_write(const struct regmap_field *field, unsigned int val);
 
 /**
  * regmap_read() - Read a 32-bit value from a regmap
@@ -531,6 +535,6 @@ int regmap_field_write(struct regmap_field *field, unsigned int val);
  *
  * Return: 0 if OK, -ve on error
  */
-int regmap_field_read(struct regmap_field *field, unsigned int *val);
+int regmap_field_read(const struct regmap_field *field, unsigned int *val);
 
 #endif
