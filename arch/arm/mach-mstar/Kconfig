@@ -120,18 +120,37 @@ config MSTARV7_SPINAND_UBOOT
 	select MTD_SPI_NAND
 	select ENV_IS_IN_UBI
 
+# Enough to just read SPI NAND in the SPL
 config MSTARV7_SPINAND_SPL
 	bool
-	select SPL_UBI
 	select SPL_SPI_NAND_SUPPORT
 	select SPL_MTD_SUPPORT
+
+# Options to load u-boot from raw SPI NAND pages
+# in the SPL
+config MSTARV7_SPINAND_SPL_RAW
+	bool
+	select MSTARV7_SPINAND_SPL
+
+# Options for full UBI in the SPL
+config MSTARV7_SPINAND_SPL_UBI
+	bool
+	select MSTARV7_SPINAND_SPL
+	select SPL_UBI
 	select UBI_SPL_SILENCE_MSG
+
+# For P3 where the SRAM is tiny
+config MSTARV7_SPINAND_SMALL
+	bool
+	select MSTARV7_SPIBOOT
+	select MSTARV7_SPINAND_UBOOT
+	select MSTARV7_SPINAND_SPL_RAW
 
 config MSTARV7_SPINAND
 	bool
 	select MSTARV7_SPIBOOT
 	select MSTARV7_SPINAND_UBOOT
-	select MSTARV7_SPINAND_SPL
+	select MSTARV7_SPINAND_SPL_UBI
 
 choice
      prompt "Board type"
@@ -223,9 +242,8 @@ endif
 if MSTAR_PIONEER3
 config TARGET_PREDITA
 	bool "Predita"
-	select MSTARV7_COMMON
-	#select MSTARV7_SPINAND
-	#select MSTARV7_SPINAND_UBOOT
+	select MSTARV7_BASE
+	select MSTARV7_SPINAND_SMALL
 	select PINCTRL
 	select PINCTRL_MSTAR
 endif
