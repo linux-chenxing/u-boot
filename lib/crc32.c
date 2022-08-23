@@ -157,18 +157,18 @@ tole(0xb40bbe37L), tole(0xc30c8ea1L), tole(0x5a05df1bL), tole(0x2d02ef8dL)
 };
 #endif
 
-#if 0
+//#if 0
 /* =========================================================================
  * This function can be used by asm versions of crc32()
  */
-const uint32_t * ZEXPORT get_crc_table()
+const uint32_t *get_crc_table(void)
 {
 #ifdef CONFIG_DYNAMIC_CRC_TABLE
   if (crc_table_empty) make_crc_table();
 #endif
   return (const uint32_t *)crc_table;
 }
-#endif
+//#endif
 
 /* ========================================================================= */
 # if __BYTE_ORDER == __LITTLE_ENDIAN

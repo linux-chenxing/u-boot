@@ -25,8 +25,8 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/compiler.h>
-#include <u-boot/crc.h>
 #endif
+#include <u-boot/crc.h>
 #include <linux/types.h>
 
 #include <asm/byteorder.h>
@@ -83,7 +83,7 @@ u32 crc32_le(u32 crc, unsigned char const *p, size_t len)
 {
 # if CRC_LE_BITS == 8
 	const u32      *b =(u32 *)p;
-	const u32      *tab = crc32table_le;
+	const u32      *tab = get_crc_table();
 
 # ifdef __LITTLE_ENDIAN
 #  define DO_CRC(x) crc = tab[ (crc ^ (x)) & 255 ] ^ (crc>>8)
@@ -131,17 +131,17 @@ u32 crc32_le(u32 crc, unsigned char const *p, size_t len)
 # elif CRC_LE_BITS == 4
 	while (len--) {
 		crc ^= *p++;
-		crc = (crc >> 4) ^ crc32table_le[crc & 15];
-		crc = (crc >> 4) ^ crc32table_le[crc & 15];
+		crc = (crc >> 4) ^ tab[crc & 15];
+		crc = (crc >> 4) ^ tab[crc & 15];
 	}
 	return crc;
 # elif CRC_LE_BITS == 2
 	while (len--) {
 		crc ^= *p++;
-		crc = (crc >> 2) ^ crc32table_le[crc & 3];
-		crc = (crc >> 2) ^ crc32table_le[crc & 3];
-		crc = (crc >> 2) ^ crc32table_le[crc & 3];
-		crc = (crc >> 2) ^ crc32table_le[crc & 3];
+		crc = (crc >> 2) ^ tab[crc & 3];
+		crc = (crc >> 2) ^ tab[crc & 3];
+		crc = (crc >> 2) ^ tab[crc & 3];
+		crc = (crc >> 2) ^ tab[crc & 3];
 	}
 	return crc;
 # endif
