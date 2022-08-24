@@ -18,8 +18,29 @@ static const struct reg_field enfrun_field = REG_FIELD(REG_CONFIG0, 5, 5);
 static const struct reg_field enxtal_field = REG_FIELD(REG_CONFIG0, 7, 7);
 
 struct mstar_upll_priv {
+	struct regmap *regmap;
 	struct regmap_field *pd;
 };
+
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int mstar_upll_of_to_plat(struct udevice *dev)
+{
+	struct mstar_upll_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap, 0);
+	if(ret)
+		goto out;
+
+out:
+	return ret;
+}
+#else
+static int mstar_upll_of_to_plat(struct udevice *dev)
+{
+	return 0;
+}
+#endif
 
 static int mstar_upll_enable(struct clk *clk)
 {
@@ -52,11 +73,6 @@ static int mstar_upll_probe(struct udevice *dev)
 {
 	struct mstar_upll_priv *priv = dev_get_priv(dev);
 	int ret;
-	struct regmap *regmap;
-
-	ret = regmap_init_mem_index(dev_ofnode(dev), &regmap, 0);
-	if(ret)
-		goto out;
 
 #if 0
 	#define UPLL0 0x1f284000
@@ -68,7 +84,7 @@ static int mstar_upll_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->pd = devm_regmap_field_alloc(dev, regmap, pd_field);
+	priv->pd = devm_regmap_field_alloc(dev, priv->regmap, pd_field);
 
 out:
 	return ret;
@@ -83,6 +99,7 @@ U_BOOT_DRIVER(mstar_upll) = {
 	.name = "mstar_upll",
 	.id = UCLASS_CLK,
 	.of_match = mstar_upll_ids,
+	.of_to_plat =  mstar_upll_of_to_plat,
 	.probe = mstar_upll_probe,
 	.priv_auto = sizeof(struct mstar_upll_priv),
 	.ops = &mstar_upll_ops,

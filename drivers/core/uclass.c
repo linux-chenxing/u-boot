@@ -311,9 +311,9 @@ int uclass_find_next_free_seq(struct uclass *uc)
 	int max = -1;
 
 	/* If using aliases, start with the highest alias value */
-	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
-	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS))
-		max = dev_read_alias_highest_id(uc->uc_drv->name);
+//	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+//	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS))
+//		max = dev_read_alias_highest_id(uc->uc_drv->name);
 
 	/* Avoid conflict with existing devices */
 	list_for_each_entry(dev, &uc->dev_head, uclass_node) {

@@ -8,7 +8,7 @@
 #ifndef DRIVERS_DDR_MSTAR_DEBUG_H_
 #define DRIVERS_DDR_MSTAR_DEBUG_H_
 
-static inline int mstar_regmap_write(struct regmap *map, uint offset, uint val)
+static inline int mstar_regmap_write(const struct regmap *map, uint offset, uint val)
 {
 #ifdef CONFIG_MSTAR_MIU_DEBUG
 	int ret;
@@ -42,7 +42,7 @@ struct regmap_field {
 	unsigned int reg;
 };
 
-static int mstar_regmap_field_write(struct regmap_field *field, unsigned int val)
+static int mstar_regmap_field_write(const struct regmap_field *field, unsigned int val)
 {
 	int ret;
 	uint original, new;

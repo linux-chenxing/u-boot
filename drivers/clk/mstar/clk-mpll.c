@@ -10,6 +10,10 @@
 #include <linux/err.h>
 #include <dt-bindings/clock/mstar.h>
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 #define REG_TEST	0x0
 #define REG_POWER	0x4
 #define REG_CONFIG1	0x8
@@ -39,6 +43,11 @@ static const ulong output_dividers[] = {
 	500,
 };
 
+struct mstar_mpll_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_mstar_mpll dtplat;
+#endif
+};
 
 struct mstar_mpll_priv {
 	struct clk clk;
@@ -77,6 +86,8 @@ static int mstar_mpll_enable(struct clk *clk)
 	struct mstar_mpll_priv *priv = dev_get_priv(clk->dev);
 	uint power;
 	uint lock;
+
+	printf("mpll enable\n");
 
 	/* If MPLL is run leave it alone */
 	regmap_read(priv->regmap, REG_POWER, &power);
@@ -127,24 +138,43 @@ uint mpll_dbg = 0;
 
 static int mstar_mpll_probe(struct udevice *dev)
 {
+	struct mstar_mpll_plat *plat = dev_get_plat(dev);
 	struct mstar_mpll_priv *priv = dev_get_priv(dev);
 	int ret;
 
 	printf("mpll here!\n");
 
-	ret = clk_get_by_index(dev, 0, &priv->clk);
-	if(ret)
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[0], 1, &priv->regmap);
+	if (ret)
+		goto out;
+	ret = clk_get_by_phandle(dev, &plat->dtplat.clocks[0], &priv->clk);
+	if (ret)
 		goto out;
 
+	/* eek! */
+	const struct dtd_syscon dtv_syscon_at_1c00 = {
+		.reg			= {0x1f001c00, 0x100},
+		.u_boot_dm_preloc	= true,
+	};
+	ret = regmap_init_mem_plat(dev, &dtv_syscon_at_1c00.reg[0], 1, &priv->pmsleep);
+	if (ret)
+		goto out;
+#else
 	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap, 0);
-	if(ret)
+	if (ret)
+		goto out;
+
+	ret = clk_get_by_index(dev, 0, &priv->clk);
+	if (ret)
 		goto out;
 
 	priv->pmsleep = syscon_regmap_lookup_by_phandle(dev, "mstar,pmsleep");
-	if(IS_ERR(priv->pmsleep)){
+	if (IS_ERR(priv->pmsleep)) {
 		ret = PTR_ERR(priv->pmsleep);
 		goto out;
 	}
+#endif
 
 	priv->input_div = devm_regmap_field_alloc(dev,priv->regmap, config1_input_div_first);
 	priv->output_div = devm_regmap_field_alloc(dev,priv->regmap, config2_output_div_first);
@@ -167,6 +197,7 @@ U_BOOT_DRIVER(mstar_mpll) = {
 	.name = "mstar_mpll",
 	.id = UCLASS_CLK,
 	.of_match = mstar_mpll_ids,
+	.plat_auto = sizeof(struct mstar_mpll_plat),
 	.probe = mstar_mpll_probe,
 	.priv_auto = sizeof(struct mstar_mpll_priv),
 	.ops = &mstar_mpll_ops,
