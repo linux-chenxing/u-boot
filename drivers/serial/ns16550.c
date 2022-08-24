@@ -505,6 +505,16 @@ int ns16550_serial_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	int ret;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	plat->base = 0x1f000000 + plat->dtplat.reg[0];
+	plat->reg_width = 1;
+	plat->reg_shift = plat->dtplat.reg_shift;
+	plat->reg_offset = 0;
+	plat->clock = plat->dtplat.clock_frequency;
+	plat->fcr = UART_FCR_DEFVAL;
+	plat->flags = 0;
+#endif
+
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
 	 * or via a PCI bridge, assign plat->base before probing hardware.
@@ -625,6 +635,7 @@ U_BOOT_DRIVER(ns16550_serial) = {
 };
 
 DM_DRIVER_ALIAS(ns16550_serial, ti_da830_uart)
+DM_DRIVER_ALIAS(ns16550_serial, snps_dw_apb_uart);
 #endif
 #endif /* SERIAL_PRESENT */
 
