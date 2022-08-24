@@ -58,6 +58,10 @@ enum ns16550_flags {
 	NS16550_FLAG_BE		= 1 << 2, /* Big-endian access (else little) */
 };
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 /**
  * struct ns16550_plat - information about a NS16550 port
  *
@@ -71,6 +75,10 @@ enum ns16550_flags {
  * @bdf:		PCI slot/function (pci_dev_t)
  */
 struct ns16550_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_ns16550_serial dtplat;
+#endif
+
 	unsigned long base;
 	int reg_width;
 	int reg_shift;
