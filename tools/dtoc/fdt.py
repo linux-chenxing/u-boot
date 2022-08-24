@@ -25,7 +25,7 @@ from patman import tools
 # A list of types we support
 class Type(IntEnum):
     # Types in order from widest to narrowest
-    (BYTE, INT, STRING, BOOL, INT64) = range(5)
+    (BYTE, INT, STRING, BOOL, INT32, INT64) = range(6)
 
     def needs_widening(self, other):
         """Check if this type needs widening to hold a value from another type

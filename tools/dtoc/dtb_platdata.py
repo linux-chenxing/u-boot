@@ -46,6 +46,7 @@ TYPE_NAMES = {
     fdt.Type.BYTE: 'unsigned char',
     fdt.Type.STRING: 'const char *',
     fdt.Type.BOOL: 'bool',
+    fdt.Type.INT32: 'fdt32_t',
     fdt.Type.INT64: 'fdt64_t',
 }
 
@@ -134,7 +135,7 @@ def get_value(ftype, value):
         val = '"%s"' % value.replace('\\', '\\\\')
     elif ftype == fdt.Type.BOOL:
         val = 'true'
-    else:  # ftype == fdt.Type.INT64:
+    else:  # ftype == fdt.Type.INT32 || ftype == fdt.Type.INT64:
         val = '%#x' % value
     return val
 
@@ -454,6 +455,70 @@ class DtbPlatdata():
                 num_size = fdt_util.fdt32_to_cpu(size_prop.value)
         return num_addr, num_size
 
+    @staticmethod
+    def calculate_bus_base_address(node):
+        ranges = node.parent.props.get('ranges')
+        if not ranges:
+            return 0
+
+        if ranges.type is fdt.Type.BOOL:
+            return 0
+
+        val = ranges.value
+
+        num_addr, num_size = DtbPlatdata.get_num_cells(node)
+        rlen = len(val)
+        num_addr_size = num_addr + num_size
+
+        if rlen - num_addr_size != 1:
+            raise ValueError("Don't know how to handle this type of range")
+
+        return fdt_util.fdt_cells_to_cpu(val[rlen - num_addr_size:], num_addr)
+
+    def scan_ranges(self):
+        """Scan for ranges in the parent of a node and fix up the address accordingly.
+        """
+        for node in self._valid_nodes:
+            reg = node.props.get('reg')
+            if not reg:
+                continue
+
+            bus_base = self.calculate_bus_base_address(node)
+            if bus_base == 0:
+                continue
+
+            num_addr, num_size = self.get_num_cells(node)
+            total = num_addr + num_size
+
+            if reg.type != fdt.Type.INT:
+                raise ValueError("Node '%s' reg property is not an int" %
+                                 node.name)
+            if not isinstance(reg.value, list):
+                reg.value = [reg.value]
+            if len(reg.value) % total:
+                raise ValueError(
+                    "Node '%s' (parent '%s') reg property has %d cells "
+                    'which is not a multiple of na + ns = %d + %d)' %
+                    (node.name, node.parent.name, len(reg.value), num_addr,
+                     num_size))
+            if num_addr != 1 or num_size != 1:
+                raise ValueError("Sorry don't know how to handle 64bits")
+
+            val = reg.value
+
+            i = 0
+            while i < total:
+                newvalue = []
+                addr = bus_base + fdt_util.fdt_cells_to_cpu(val[i:], num_addr)
+                i += num_addr
+                size = fdt_util.fdt_cells_to_cpu(val[num_addr:], num_size)
+                i += num_size
+                newvalue += [addr, size]
+                print("%x" % addr)
+
+            reg.type = fdt.Type.INT32
+            reg.value = newvalue
+
     def scan_reg_sizes(self):
         """Scan for 64-bit 'reg' properties and update the values
 
@@ -467,6 +532,10 @@ class DtbPlatdata():
                 continue
             num_addr, num_size = self.get_num_cells(node)
             total = num_addr + num_size
+
+            # Already processed by scan_ranges and not 64bit
+            if reg.type == fdt.Type.INT32:
+                continue
 
             if reg.type != fdt.Type.INT:
                 raise ValueError("Node '%s' reg property is not an int" %
@@ -1197,6 +1266,7 @@ def run_steps(args, dtb_file, include_disabled, output, output_dirs, phase,
     plat.scan_dtb()
     plat.scan_tree(add_root=instantiate)
     plat.prepare_nodes()
+    plat.scan_ranges()
     plat.scan_reg_sizes()
     plat.setup_output_dirs(output_dirs)
     plat.scan_structs()
