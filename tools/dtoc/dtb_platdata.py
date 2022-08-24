@@ -893,6 +893,8 @@ class DtbPlatdata():
             return
         re_num = re.compile('(^[a-z0-9-]+[a-z]+)([0-9]+)$')
         for prop in alias_node.props.values():
+            if prop.name in PROP_IGNORE_LIST:
+                continue;
             m_alias = re_num.match(prop.name)
             if not m_alias:
                 raise ValueError("Cannot decode alias '%s'" % prop.name)
