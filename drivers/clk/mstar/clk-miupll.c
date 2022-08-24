@@ -8,6 +8,10 @@
 #include <chenxingv7.h>
 #include <dm/device_compat.h>
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 #define MAYBEPLL1_04			0x4
 #define MAYBEPLL1_04_MIU128BUSPLLPD	BIT(8)
 #define MAYBEPLL1_08			0x8
@@ -22,6 +26,12 @@ struct mstar_miupll_magicnumbers {
 	u16 pll_magic_08, pll_magic_0c, pll_magic_10;
 };
 
+struct mstar_miupll_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_mstar_miupll dtplat;
+#endif
+};
+
 struct mstar_miupll_priv {
 	struct regmap *regmap;
 	struct mstar_miupll_magicnumbers magicnumbers;
@@ -30,8 +40,6 @@ struct mstar_miupll_priv {
 static int mstar_miupll_enable(struct clk *clk)
 {
 	struct mstar_miupll_priv *priv = dev_get_priv(clk->dev);
-
-	printk("miupll enable\n");
 
 	/* seems to be power on, i3 ipl has this after setting the registers
 	 * the i2 and m5 ipls has this before setting the registers.
@@ -68,10 +76,12 @@ static ulong mstar_miupll_set_rate(struct clk *clk, ulong rate)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int mstar_miupll_disable(struct clk *clk)
 {
 	return 0;
 }
+#endif
 
 static const struct clk_ops mstar_miupll_ops = {
 	.get_rate = mstar_miupll_get_rate,
@@ -84,12 +94,19 @@ static const struct clk_ops mstar_miupll_ops = {
 
 static int mstar_miupll_probe(struct udevice *dev)
 {
+	struct mstar_miupll_plat *plat = dev_get_plat(dev);
 	struct mstar_miupll_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap, 0);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[0], 1, &priv->regmap);
 	if (ret)
 		goto out;
+#else
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap, 0);
+	if(ret)
+		goto out;
+#endif
 
 	//for (int i = 0; i < 0x100; i += 4) {
 	//	unsigned int val;
@@ -132,11 +149,14 @@ static const struct udevice_id mstar_miupll_ids[] = {
 };
 
 U_BOOT_DRIVER(mstar_miupll) = {
-	.name = "mstar_miupll",
-	.id = UCLASS_CLK,
-	.of_match = mstar_miupll_ids,
-	.probe = mstar_miupll_probe,
-	.priv_auto = sizeof(struct mstar_miupll_priv),
-	.ops = &mstar_miupll_ops,
-	.flags = DM_FLAG_PRE_RELOC,
+	.name		= "mstar_miupll",
+	.id		= UCLASS_CLK,
+	.of_match	= mstar_miupll_ids,
+	.plat_auto	= sizeof(struct mstar_miupll_plat),
+	.probe		= mstar_miupll_probe,
+	.priv_auto	= sizeof(struct mstar_miupll_priv),
+	.ops		= &mstar_miupll_ops,
+	.flags		= DM_FLAG_PRE_RELOC,
 };
+
+DM_DRIVER_ALIAS(mstar_miupll, mstar_miupll);
