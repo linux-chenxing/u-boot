@@ -87,6 +87,7 @@ config MSTARV7_BASE
 	# Options to keep the SPL size down
 	select SPL_SYS_ICACHE_OFF
 	select SPL_SYS_DCACHE_OFF
+	select SPL_OF_PLATDATA
 
 # Should be selected by everyone but p3
 config MSTARV7_COMMON
@@ -242,8 +243,8 @@ endif
 if MSTAR_PIONEER3
 config TARGET_PREDITA
 	bool "Predita"
-	select MSTARV7_BASE
-	select MSTARV7_SPINAND_SMALL
+	select MSTARV7_COMMON
+	#select MSTARV7_SPINAND
 	select PINCTRL
 	select PINCTRL_MSTAR
 endif

@@ -224,8 +224,7 @@ int mstar_cpupll_init(void)
 
 	debug("Setting up CPUPLL\n");
 
-	rv = uclass_get_device_by_name(UCLASS_CLK, "cpupll@206400",
-			&dev);
+	rv = uclass_get_device_by_driver(UCLASS_CLK, DM_DRIVER_GET(mstar_cpupll), &dev);
 	if (rv)
 		printf("CPUPLL init failed: %d\n", rv);
 

@@ -178,6 +178,8 @@ UCLASS_DRIVER(syscon) = {
 	.pre_probe = syscon_pre_probe,
 };
 
+DM_DRIVER_ALIAS(syscon, mstar_msc313_pmsleep);
+
 static const struct udevice_id generic_syscon_ids[] = {
 	{ .compatible = "syscon" },
 	{ }

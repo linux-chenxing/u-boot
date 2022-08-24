@@ -108,6 +108,7 @@ EXPORT_SYMBOL_GPL(nanddev_bbt_get_block_status);
  * Return: 0 in case of success or -%ERANGE if @entry is bigger than the BBT
  *	   size.
  */
+
 int nanddev_bbt_set_block_status(struct nand_device *nand, unsigned int entry,
 				 enum nand_bbt_block_status status)
 {

@@ -9,6 +9,10 @@
 
 #include <chenxingv7.h>
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 #define CPUPLL				0x1f206400
 #define CPUPLL_44			0x44
 #define CPUPLL_48			0x48
@@ -28,6 +32,12 @@
 
 #define L3BRIDGE_04			0x04
 #define L3BRIDGE_04_CLK_MIU2X_SEL	BIT(7)
+
+struct mstar_cpupll_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_mstar_cpupll dtplat;
+#endif
+};
 
 struct mstar_cpupll_priv {
 	struct regmap *regmap;
@@ -139,9 +149,28 @@ static const struct clk_ops mstar_cpupll_ops = {
 
 static int mstar_cpupll_probe(struct udevice *dev)
 {
+	struct mstar_cpupll_plat *plat = dev_get_plat(dev);
 	struct mstar_cpupll_priv *priv = dev_get_priv(dev);
 	int ret;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[0], 1, &priv->regmap);
+	if (ret)
+		goto out;
+
+	ret = clk_get_by_phandle(dev, &plat->dtplat.clocks[0], &priv->clk);
+	if (ret)
+		goto out;
+
+	/* eek! */
+	static struct dtd_mstar_l3bridge dtv_l3bridge_at_204400 = {
+		.reg			= {0x1f204400, 0x200},
+		.u_boot_dm_preloc	= true,
+	};
+	ret = regmap_init_mem_plat(dev,  &dtv_l3bridge_at_204400.reg[0], 1, &priv->l3bridge);
+	if (ret)
+		goto out;
+#else
 	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap, 0);
 	if(ret)
 		goto out;
@@ -155,6 +184,7 @@ static int mstar_cpupll_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if(ret)
 		goto out;
+#endif
 
 	clk_enable(&priv->clk);
 
@@ -168,11 +198,12 @@ static const struct udevice_id mstar_cpupll_ids[] = {
 };
 
 U_BOOT_DRIVER(mstar_cpupll) = {
-	.name = "mstar_cpupll",
-	.id = UCLASS_CLK,
-	.of_match = mstar_cpupll_ids,
-	.probe = mstar_cpupll_probe,
-	.priv_auto = sizeof(struct mstar_cpupll_priv),
-	.ops = &mstar_cpupll_ops,
-	.flags = DM_FLAG_PRE_RELOC,
+	.name		= "mstar_cpupll",
+	.id		= UCLASS_CLK,
+	.of_match	= mstar_cpupll_ids,
+	.plat_auto	= sizeof(struct mstar_cpupll_plat),
+	.probe		= mstar_cpupll_probe,
+	.priv_auto	= sizeof(struct mstar_cpupll_priv),
+	.ops		= &mstar_cpupll_ops,
+	.flags		= DM_FLAG_PRE_RELOC,
 };

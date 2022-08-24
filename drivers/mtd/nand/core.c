@@ -152,8 +152,8 @@ int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 
 	return nand->ops->erase(nand, pos);
 }
-#endif
 EXPORT_SYMBOL_GPL(nanddev_erase);
+#endif
 
 /**
  * nanddev_mtd_erase() - Generic mtd->_erase() implementation for NAND devices
@@ -170,6 +170,7 @@ EXPORT_SYMBOL_GPL(nanddev_erase);
  *
  * Return: 0 in case of success, a negative error code otherwise.
  */
+#ifndef CONFIG_SPL_BUILD
 int nanddev_mtd_erase(struct mtd_info *mtd, struct erase_info *einfo)
 {
 	struct nand_device *nand = mtd_to_nanddev(mtd);
@@ -193,6 +194,7 @@ int nanddev_mtd_erase(struct mtd_info *mtd, struct erase_info *einfo)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(nanddev_mtd_erase);
+#endif
 
 /**
  * nanddev_init() - Initialize a NAND device
@@ -252,11 +254,17 @@ EXPORT_SYMBOL_GPL(nanddev_init);
  *
  * Basically undoes what has been done in nanddev_init().
  */
+#ifndef CONFIG_SPL_BUILD
 void nanddev_cleanup(struct nand_device *nand)
 {
 	if (nanddev_bbt_is_initialized(nand))
 		nanddev_bbt_cleanup(nand);
 }
+#else
+void nanddev_cleanup(struct nand_device *nand)
+{
+}
+#endif
 EXPORT_SYMBOL_GPL(nanddev_cleanup);
 
 MODULE_DESCRIPTION("Generic NAND framework");

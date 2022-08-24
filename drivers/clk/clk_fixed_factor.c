@@ -73,3 +73,5 @@ U_BOOT_DRIVER(clk_fixed_factor) = {
 	.plat_auto	= sizeof(struct clk_fixed_factor),
 	.ops = &clk_fixed_factor_ops,
 };
+
+DM_DRIVER_ALIAS(fixed_factor_clock, fixed_factor_clock);

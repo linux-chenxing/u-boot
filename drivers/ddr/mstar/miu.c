@@ -14,6 +14,10 @@
 #include "miu.h"
 #include "mmu.h"
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 #define NUM_GROUPS 8
 
 struct ddr_config {
@@ -48,6 +52,12 @@ struct ddr_config {
 	uint16_t ana_1f0;
 };
 
+struct mstar_miu_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_mstar_miu dtplat;
+#endif
+};
+
 struct mstar_miu_priv {
 	struct regmap	*ana, *dig, *arb;
 	struct clk	miupll;
@@ -75,6 +85,33 @@ struct mstar_miu_priv {
 	/* protect2 registers */
 	const struct regmap_field *protect2_start;
 };
+
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int mstar_miu_of_to_plat(struct udevice *dev)
+{
+	struct mstar_miu_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->ana, 0);
+	if (ret)
+		goto out;
+
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->dig, 1);
+	if (ret)
+		goto out;
+
+	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->arb, 2);
+	if (ret)
+		goto out;
+out:
+	return ret;
+}
+#else
+static int mstar_miu_of_to_plat(struct udevice *dev)
+{
+	return 0;
+}
+#endif
 
 /* -- confirmed in SSD210 ipl code -- */
 static inline void miu_dig_rst(struct regmap *dig)
@@ -929,22 +966,28 @@ static void mstar_miu_dump(struct mstar_miu_priv *priv)
 
 static int mstar_miu_probe(struct udevice *dev)
 {
+	struct mstar_miu_plat *plat = dev_get_plat(dev);
 	struct mstar_miu_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->ana, 0);
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[0], 1, &priv->ana);
 	if (ret)
 		goto out;
 
-	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->dig, 1);
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[2], 1, &priv->dig);
 	if (ret)
 		goto out;
 
-	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->arb, 2);
+	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[4], 1, &priv->arb);
 	if (ret)
 		goto out;
 
+	ret = clk_get_by_phandle(dev, &plat->dtplat.clocks[0], &priv->miupll);
+#else
 	ret = clk_get_by_name(dev, "miupll", &priv->miupll);
+#endif
+
 	if (ret)
 		goto out;
 
@@ -1058,12 +1101,16 @@ static const struct udevice_id mstar_miu_ids[] = {
 };
 
 U_BOOT_DRIVER(mstar_miu) = {
-	.name = "mstar_miu",
-	.id = UCLASS_RAM,
-	.of_match = mstar_miu_ids,
-	.ops = &mstar_miu_ops,
-	.probe = mstar_miu_probe,
-	.priv_auto = sizeof(struct mstar_miu_priv),
+	.name		= "mstar_miu",
+	.id		= UCLASS_RAM,
+	.of_match	= mstar_miu_ids,
+	.of_to_plat	=  mstar_miu_of_to_plat,
+	.plat_auto	= sizeof(struct mstar_miu_plat),
+	.ops		= &mstar_miu_ops,
+	.probe		= mstar_miu_probe,
+	.priv_auto	= sizeof(struct mstar_miu_priv),
 };
+
+DM_DRIVER_ALIAS(mstar_miu, mstar_msc313_miu);
 
 #endif

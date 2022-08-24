@@ -507,14 +507,14 @@ class DtbPlatdata():
             val = reg.value
 
             i = 0
-            while i < total:
-                newvalue = []
+            newvalue = []
+            while i < len(reg.value):
                 addr = bus_base + fdt_util.fdt_cells_to_cpu(val[i:], num_addr)
                 i += num_addr
                 size = fdt_util.fdt_cells_to_cpu(val[num_addr:], num_size)
                 i += num_size
                 newvalue += [addr, size]
-                print("%x" % addr)
+                print("%x, %d of %d" % (addr,i, total))
 
             reg.type = fdt.Type.INT32
             reg.value = newvalue
