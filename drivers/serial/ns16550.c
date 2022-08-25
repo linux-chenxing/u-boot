@@ -215,8 +215,10 @@ int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate)
 
 static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 {
+// ugly hack for the fact that platdata can't setup the clock yet.
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
 	return;
-
+#endif
 	/* to keep serial format, read lcr before writing BKSE */
 	int lcr_val = serial_in(&com_port->lcr) & ~UART_LCR_BKSE;
 
@@ -512,7 +514,7 @@ int ns16550_serial_probe(struct udevice *dev)
 	plat->reg_width = 1;
 	plat->reg_shift = plat->dtplat.reg_shift;
 	plat->reg_offset = 0;
-	plat->clock = plat->dtplat.clock_frequency;
+	//plat->clock = plat->dtplat.clock_frequency;
 	plat->fcr = UART_FCR_DEFVAL;
 	plat->flags = 0;
 	printf("%x %d %d ---\n", plat->base, plat->reg_shift, plat->clock);
