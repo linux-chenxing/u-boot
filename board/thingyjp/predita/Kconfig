@@ -40,6 +40,5 @@ config SPL_UBI_VID_OFFSET
 config SPL_UBI_LEB_START
         default 4096
 config SPL_UBI_LOAD_MONITOR_ID
-#        default 0
-	default 4
+	default 0
 endif

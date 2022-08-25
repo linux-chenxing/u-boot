@@ -1311,3 +1311,5 @@ U_BOOT_DRIVER(spinand) = {
 	.priv_auto	= sizeof(struct spinand_device),
 	.probe = spinand_probe,
 };
+
+DM_DRIVER_ALIAS(spi_nand, spi_nand);

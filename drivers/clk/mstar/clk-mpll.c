@@ -87,8 +87,6 @@ static int mstar_mpll_enable(struct clk *clk)
 	uint power;
 	uint lock;
 
-	printf("mpll enable\n");
-
 	/* If MPLL is run leave it alone */
 	regmap_read(priv->regmap, REG_POWER, &power);
 	if (power == 0)
@@ -142,8 +140,6 @@ static int mstar_mpll_probe(struct udevice *dev)
 	struct mstar_mpll_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	printf("mpll here!\n");
-
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = regmap_init_mem_plat(dev, &plat->dtplat.reg[0], 1, &priv->regmap);
 	if (ret)
@@ -181,8 +177,6 @@ static int mstar_mpll_probe(struct udevice *dev)
 	priv->loop_div_first = devm_regmap_field_alloc(dev,priv->regmap, config1_loop_div_first);
 	priv->loop_div_second = devm_regmap_field_alloc(dev,priv->regmap, config2_loop_div_second);
 	priv->plllock = devm_regmap_field_alloc(dev,priv->regmap, status_mpll_lock);
-
-	printf("mpll here xxxx!\n");
 
 out:
 	return ret;
