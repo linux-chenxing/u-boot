@@ -357,10 +357,10 @@
 				u-boot,dm-preloc;
 				reg = <0x221000 0x200>;
 				reg-shift = <3>;
-				//clocks = <&clkgen_mux_uart 0>;
-				//assigned-clocks = <&clkgen_mux_uart 0>;
-				//assigned-clock-parents = <&mpll MSTAR_MPLL_172>;
-				clock-frequency = <12000000>;
+				clocks = <&clkgen_mux_uart 0>;
+				assigned-clocks = <&clkgen_mux_uart 0>;
+				assigned-clock-parents = <&mpll MSTAR_MPLL_172>;
+				//clock-frequency = <12000000>;
 			};
 
 			upll0: upll@284000 {
