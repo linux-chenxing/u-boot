@@ -11,6 +11,10 @@
 #include <dm/device_compat.h>
 #include <log.h>
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#include <dt-structs.h>
+#endif
+
 #define REG_PASSWORD			0x0
 #define VAL_PASSWORD_UNLOCK		0xAAAA
 #define VAL_PASSWORD_LOCK		0x5555
@@ -31,8 +35,12 @@
 #define VAL_TRIGGER_MODE_DISABLE	0x2222
 
 struct msc313_spinor_platdata {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_msc313_spinor dtplat;
+#else
 	fdt_addr_t reg_base;
 	fdt_addr_t mem_base;
+#endif
 };
 
 struct msc313_spinor_priv {
@@ -138,6 +146,7 @@ static int msc313_spinor_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int msc313_spinor_ofdata_to_platdata(struct udevice *bus)
 {
 	struct resource res_reg, res_mem;
@@ -161,6 +170,12 @@ static int msc313_spinor_ofdata_to_platdata(struct udevice *bus)
 
 	return 0;
 }
+#else
+static int msc313_spinor_ofdata_to_platdata(struct udevice *bus)
+{
+	return 0;
+}
+#endif
 
 static const struct clk_div_table div_table[] = {
 	{0x1, 2},
@@ -178,8 +193,15 @@ static int msc313_spinor_probe(struct udevice *bus)
 	struct msc313_spinor_platdata *plat = dev_get_plat(bus);
 	struct msc313_spinor_priv *priv = dev_get_priv(bus);
 
+	printf("probe!\n");
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	priv->regs = plat->dtplat.reg[0];
+	priv->mem_base = plat->dtplat.reg[2];
+#else
 	priv->regs = (u32 *) plat->reg_base;
 	priv->mem_base = (unsigned long *)plat->mem_base;
+#endif
 
 	/* initially force the clock down to 54MHz */
 	writew(0x40, priv->regs + REG_SPI_CLKDIV);
@@ -210,3 +232,5 @@ U_BOOT_DRIVER(msc313_spinor) = {
 	.priv_auto		  = sizeof(struct msc313_spinor_priv),
 	.probe			  = msc313_spinor_probe,
 };
+
+DM_DRIVER_ALIAS(msc313_spinor, mstar_msc313_isp);
