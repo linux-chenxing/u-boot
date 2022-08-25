@@ -14,8 +14,8 @@ int spl_spinand_init(void)
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD, DM_DRIVER_GET(spinand), &dev);
-	if (ret){
-		//printf("Failed to probe spi-nand: %d\n", ret);
+	if (ret) {
+		debug("Failed to probe spi-nand: %d\n", ret);
 		return ret;
 	}
 
@@ -44,7 +44,7 @@ int spl_spinand_read_block(int block, int offset, int len, void *dst)
 		if (ret == -EINVAL)
 			break;
 
-		printf("mtd read ret = %d, rlen %d, retry %d\n", ret, (unsigned) rlen, retries);
+		debug("mtd read ret = %d, rlen %d, retry %d\n", ret, (unsigned) rlen, retries);
 	}
 	return ret;
 }
