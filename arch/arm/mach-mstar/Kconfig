@@ -11,6 +11,7 @@ config MSTAR_USBUPDATER
 	select CMD_DFU
 	select USB_GADGET_DOWNLOAD
 	select DFU_MTD
+	select DFU_RAM
 
 config MSTAR_IPL
 	bool "u-boot is being loaded by the vendor IPL"
